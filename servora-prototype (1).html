@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servora — IT Services Marketplace · UI/UX Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7FB; --surface:#FFFFFF; --ink:#0F172A; --muted:#64748B; --line:#E6E8F0;
+  --primary:#4338CA; --primary-2:#6366F1; --primary-soft:#EEF0FF;
+  --accent:#0EA5A4; --accent-soft:#E6FBFA;
+  --signal:#F59E0B; --signal-soft:#FEF3E2;
+  --success:#16A34A; --success-soft:#E7F6EC; --danger:#DC2626; --danger-soft:#FCEBEB;
+  --dark:#0B1029; --dark-2:#141A3A;
+  --r:18px; --r-sm:12px;
+  --font:'Inter',system-ui,sans-serif; --disp:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+  --shadow:0 18px 50px -20px rgba(16,22,55,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{font-family:var(--font);background:
+  radial-gradient(1200px 600px at 80% -10%, #21307a22, transparent),
+  radial-gradient(900px 500px at -10% 110%, #0ea5a41a, transparent),
+  var(--dark);color:var(--ink);min-height:100vh;padding-bottom:60px}
+h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.02em;line-height:1.1}
+.mono{font-family:var(--mono)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ===== prototype toolbar ===== */
+.toolbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;
+  padding:12px 20px;background:rgba(11,16,41,.85);backdrop-filter:blur(14px);
+  border-bottom:1px solid #ffffff14}
+.toolbar .brand{display:flex;align-items:center;gap:10px;color:#fff;font-family:var(--disp);font-weight:700;font-size:16px}
+.toolbar .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary-2),var(--accent));
+  display:grid;place-items:center;color:#fff;font-family:var(--disp);font-weight:700;font-size:15px;box-shadow:0 6px 18px -6px var(--primary)}
+.toolbar .tabs{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.toolbar .tabs button{color:#aab1d6;font-size:13px;font-weight:600;padding:8px 14px;border-radius:99px;transition:.15s}
+.toolbar .tabs button:hover{color:#fff;background:#ffffff12}
+.toolbar .tabs button.on{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary-2))}
+
+.stage{max-width:1280px;margin:0 auto;padding:34px 20px}
+.surface{display:none;animation:fade .4s ease}
+.surface.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ===== HUB ===== */
+.hub-head{text-align:center;color:#fff;margin-bottom:40px}
+.hub-head .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.hub-head h1{font-size:clamp(34px,6vw,60px);color:#fff;margin-bottom:18px}
+.hub-head h1 span{background:linear-gradient(120deg,var(--primary-2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hub-head p{color:#aeb6dd;max-width:620px;margin:0 auto;font-size:16px;line-height:1.6}
+.hub-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+@media(max-width:980px){.hub-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.hub-grid{grid-template-columns:1fr}}
+.hub-card{background:linear-gradient(180deg,#161d44,#10152f);border:1px solid #ffffff14;border-radius:22px;
+  padding:24px;color:#fff;text-align:left;transition:.2s;position:relative;overflow:hidden}
+.hub-card:hover{transform:translateY(-6px);border-color:#ffffff33}
+.hub-card .ic{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;font-size:22px;margin-bottom:18px}
+.hub-card h3{font-size:19px;margin-bottom:8px}
+.hub-card p{color:#9aa3cf;font-size:13px;line-height:1.55;margin-bottom:18px;min-height:54px}
+.hub-card .open{font-size:13px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:6px}
+.hub-card .glow{position:absolute;inset:auto -40px -40px auto;width:140px;height:140px;border-radius:50%;filter:blur(40px);opacity:.4}
+.hub-note{margin-top:34px;text-align:center;color:#7e87b5;font-size:13px}
+.hub-flow{margin-top:42px;background:#0e1430;border:1px solid #ffffff12;border-radius:20px;padding:26px}
+.hub-flow h4{color:#fff;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:18px;font-family:var(--mono);font-weight:500}
+.flow-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;color:#cfd4ee;font-size:13px}
+.flow-row .step{background:#1a2150;border:1px solid #ffffff16;padding:9px 14px;border-radius:10px;font-weight:600}
+.flow-row .arr{color:var(--accent);font-weight:700}
+
+/* ===== device frames ===== */
+.frame-wrap{display:flex;gap:30px;flex-wrap:wrap;justify-content:center;align-items:flex-start}
+.phone{width:392px;max-width:100%;background:#0b1029;border-radius:46px;padding:12px;box-shadow:var(--shadow);
+  border:1px solid #ffffff1a;position:relative}
+.phone .screen-area{background:var(--bg);border-radius:36px;overflow:hidden;height:812px;position:relative;display:flex;flex-direction:column}
+.notch{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#0b1029;border-radius:0 0 16px 16px;z-index:30}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px 6px;font-size:12px;font-weight:600;color:var(--ink);background:transparent}
+.statusbar .right{display:flex;gap:6px;align-items:center}
+.app-body{flex:1;overflow-y:auto;scrollbar-width:thin}
+.app-body::-webkit-scrollbar{width:5px}.app-body::-webkit-scrollbar-thumb{background:#cbd0e6;border-radius:9px}
+
+.browser{width:100%;max-width:1180px;background:#0b1029;border-radius:18px;padding:0;box-shadow:var(--shadow);border:1px solid #ffffff1a;overflow:hidden}
+.browser .bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#11172f}
+.browser .dots{display:flex;gap:7px}.browser .dots i{width:12px;height:12px;border-radius:50%;display:block}
+.browser .dots i:nth-child(1){background:#ff5f57}.browser .dots i:nth-child(2){background:#febc2e}.browser .dots i:nth-child(3){background:#28c840}
+.browser .url{flex:1;background:#0a0f24;border:1px solid #ffffff14;border-radius:9px;padding:8px 14px;color:#aeb6dd;font-size:12px;font-family:var(--mono)}
+.browser .view{background:var(--bg);max-height:780px;overflow-y:auto}
+.browser .view::-webkit-scrollbar{width:8px}.browser .view::-webkit-scrollbar-thumb{background:#cbd0e6;border-radius:9px}
+
+.screen{display:none}.screen.on{display:block;animation:fade .25s ease}
+.frame-caption{text-align:center;color:#aeb6dd;font-size:13px;margin:10px 0 0;font-family:var(--mono)}
+
+/* ===== shared UI atoms ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14px;
+  padding:13px 18px;border-radius:13px;transition:.15s;border:1px solid transparent}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;box-shadow:0 10px 24px -10px var(--primary)}
+.btn-amber{background:linear-gradient(135deg,#F59E0B,#F6A93B);color:#fff}
+.btn-dark{background:var(--ink);color:#fff}
+.btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-out{background:transparent;border-color:var(--primary);color:var(--primary)}
+.btn-block{width:100%}
+.btn-sm{padding:9px 14px;font-size:13px;border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;font-size:12px;font-weight:600;background:var(--primary-soft);color:var(--primary);border:1px solid transparent}
+.chip.amber{background:var(--signal-soft);color:#B45309}
+.chip.teal{background:var(--accent-soft);color:#0F766E}
+.chip.ghost{background:#fff;border-color:var(--line);color:var(--muted)}
+.badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:7px;letter-spacing:.02em}
+.b-pending{background:var(--signal-soft);color:#B45309}.b-active{background:var(--accent-soft);color:#0F766E}
+.b-done{background:var(--success-soft);color:#15803D}.b-new{background:var(--primary-soft);color:var(--primary)}
+.b-warn{background:var(--danger-soft);color:#B91C1C}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.divider{height:1px;background:var(--line);margin:14px 0}
+.stars{color:var(--signal);letter-spacing:1px;font-size:13px}
+.rate{display:flex;gap:6px;margin:14px 0 4px}
+.rate span{color:#D9DEEC;cursor:pointer;font-size:36px;line-height:1;transition:transform .1s,color .1s}
+.rate span.lit{color:var(--signal)}
+.rate span:hover{transform:scale(1.15)}
+.chip.pick{cursor:pointer}
+.chip.pick.on{background:var(--primary-soft);color:var(--primary);border-color:transparent}
+.muted{color:var(--muted)}.tiny{font-size:12px}.sm{font-size:13px}
+.row{display:flex;align-items:center;gap:12px}.between{justify-content:space-between}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.input{width:100%;background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px 14px;font-size:14px;font-family:inherit;color:var(--ink)}
+.input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft)}
+.avatar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#fff;font-family:var(--disp);flex:none}
+
+/* ===== mobile app chrome ===== */
+.appbar{display:flex;align-items:center;gap:12px;padding:6px 18px 14px}
+.appbar .back{width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:17px}
+.appbar h3{font-size:17px;flex:1}
+.appbar .ic{width:38px;height:38px;border-radius:11px;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:16px}
+.pad{padding:0 18px 24px}
+.tabbar{display:flex;background:#fff;border-top:1px solid var(--line);padding:9px 8px 14px}
+.tabbar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--muted)}
+.tabbar button .ti{font-size:19px}
+.tabbar button.on{color:var(--primary)}
+.section-h{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px}
+.section-h h4{font-size:15px}.section-h a{font-size:12px;color:var(--primary);font-weight:600}
+
+/* hero gradient block */
+.app-hero{background:linear-gradient(150deg,var(--primary),#3730A3 60%,#312E81);color:#fff;padding:18px 18px 26px;border-radius:0 0 26px 26px}
+.app-hero .greet{font-size:13px;opacity:.85}.app-hero h2{font-size:22px;margin:2px 0 14px}
+.searchbar{display:flex;align-items:center;gap:10px;background:#ffffff;border-radius:13px;padding:12px 14px;color:var(--muted);font-size:13px}
+
+/* category grid */
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--ink)}
+.cat .ci{width:42px;height:42px;border-radius:12px;margin:0 auto 7px;display:grid;place-items:center;font-size:19px}
+
+/* offer banner */
+.offer{background:linear-gradient(120deg,#F59E0B,#FB923C);border-radius:16px;padding:16px;color:#fff;display:flex;gap:12px;align-items:center}
+.offer .big{font-family:var(--disp);font-size:26px;font-weight:700;line-height:1}
+.scroll-x{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.scroll-x::-webkit-scrollbar{display:none}
+
+/* service card */
+.svc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;gap:13px;align-items:flex-start}
+.svc .si{width:50px;height:50px;border-radius:13px;display:grid;place-items:center;font-size:22px;flex:none}
+.svc h5{font-size:14px;margin-bottom:3px}
+.svc .price{font-family:var(--disp);font-weight:700;color:var(--ink)}
+
+/* list item */
+.li{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.li .li-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:none}
+
+/* map */
+.map{position:relative;height:230px;border-radius:18px;overflow:hidden;border:1px solid var(--line);
+  background:
+   linear-gradient(0deg,#e9edf7,#e9edf7),
+   repeating-linear-gradient(0deg,transparent,transparent 28px,#d4dbec 28px,#d4dbec 29px),
+   repeating-linear-gradient(90deg,transparent,transparent 28px,#d4dbec 28px,#d4dbec 29px)}
+.map.tall{height:300px}
+.road{position:absolute;background:#fff;box-shadow:0 0 0 1px #cdd5ea}
+.r1{top:46%;left:0;right:0;height:14px;transform:rotate(-4deg)}
+.r2{top:0;bottom:0;left:38%;width:13px;transform:rotate(6deg)}
+.r3{top:18%;left:-10%;width:70%;height:10px;transform:rotate(34deg)}
+.ping{position:absolute;width:18px;height:18px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 0 #4338ca66}
+.ping.center{top:55%;left:50%;transform:translate(-50%,-50%);background:var(--accent)}
+.ping.center::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:scale(1);opacity:.8}100%{transform:scale(3.4);opacity:0}}
+.mk{position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;transform:translate(-50%,-100%)}
+.mk .pin{width:34px;height:34px;border-radius:11px 11px 11px 3px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;box-shadow:0 6px 14px -4px #0006;transform:rotate(0)}
+.mk .lab{background:#fff;border:1px solid var(--line);border-radius:7px;padding:2px 6px;font-size:9px;font-weight:700;white-space:nowrap}
+.eta-pill{position:absolute;top:12px;left:12px;background:#fff;border-radius:11px;padding:8px 12px;font-size:12px;font-weight:700;box-shadow:0 6px 16px -6px #0004;display:flex;align-items:center;gap:7px}
+
+/* otp boxes */
+.otp{display:flex;gap:10px;justify-content:center;margin:8px 0}
+.otp span{width:46px;height:54px;border:2px solid var(--line);border-radius:12px;display:grid;place-items:center;
+  font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink)}
+.otp span.f{border-color:var(--primary);color:var(--primary);background:var(--primary-soft)}
+
+/* incoming offer ring */
+.ring-wrap{position:relative;width:74px;height:74px;flex:none}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-wrap .num{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:22px;color:var(--primary)}
+
+/* payment rows */
+.pay{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;margin-bottom:10px}
+.pay .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--line);margin-left:auto;flex:none}
+.pay.sel{border-color:var(--primary);background:var(--primary-soft)}
+.pay.sel .radio{border-color:var(--primary);background:var(--primary);box-shadow:inset 0 0 0 3px #fff}
+
+.coupon{border:1.5px dashed var(--signal);background:var(--signal-soft);border-radius:13px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+
+/* photo upload */
+.photo-up{border:2px dashed var(--line);border-radius:15px;padding:22px;text-align:center;color:var(--muted);background:#fff}
+.photo-thumb{width:100%;height:130px;border-radius:13px;background:linear-gradient(135deg,#cbd5e1,#94a3b8);position:relative;overflow:hidden;display:grid;place-items:center;color:#fff;font-size:30px}
+
+/* ===== WEBSITE ===== */
+.web{color:var(--ink)}
+.web-nav{display:flex;align-items:center;gap:26px;padding:18px 40px;position:sticky;top:0;background:#ffffffe6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:20}
+.web-nav .brand{font-family:var(--disp);font-weight:700;font-size:19px;display:flex;align-items:center;gap:9px}
+.web-nav .lg{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary-2),var(--accent));display:grid;place-items:center;color:#fff;font-weight:700}
+.web-nav a{font-size:14px;font-weight:500;color:var(--muted);cursor:pointer}
+.web-nav a:hover{color:var(--ink)}
+.web-nav .sp{margin-left:auto}
+.web-hero{background:linear-gradient(160deg,#0B1029,#1b2150 70%,#23306f);color:#fff;padding:70px 40px 90px;position:relative;overflow:hidden}
+.web-hero .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.25em;color:var(--accent);text-transform:uppercase}
+.web-hero h1{font-size:clamp(36px,5vw,58px);margin:16px 0;max-width:680px}
+.web-hero h1 span{background:linear-gradient(120deg,var(--primary-2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.web-hero p{color:#b9c0e6;max-width:520px;font-size:17px;line-height:1.6;margin-bottom:28px}
+.web-hero .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{display:flex;gap:36px;margin-top:46px;flex-wrap:wrap}
+.hero-stats .s b{font-family:var(--disp);font-size:30px;display:block}
+.hero-stats .s span{color:#9aa3cf;font-size:13px}
+.hero-map{position:absolute;right:-30px;top:60px;width:430px;max-width:42%;opacity:.92}
+@media(max-width:900px){.hero-map{display:none}}
+.web-sec{padding:62px 40px}
+.web-sec .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--primary);text-align:center}
+.web-sec h2{font-size:34px;text-align:center;margin:12px 0 8px}
+.web-sec .sub{text-align:center;color:var(--muted);max-width:560px;margin:0 auto 40px}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1080px;margin:0 auto}
+@media(max-width:820px){.svc-grid{grid-template-columns:1fr}}
+.svc-tile{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px;transition:.2s;cursor:pointer}
+.svc-tile:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:transparent}
+.svc-tile .ti{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:24px;margin-bottom:16px}
+.svc-tile h4{font-size:18px;margin-bottom:8px}.svc-tile p{color:var(--muted);font-size:14px;line-height:1.55;margin-bottom:14px}
+.svc-tile .from{font-family:var(--disp);font-weight:700;font-size:15px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1080px;margin:0 auto}
+@media(max-width:820px){.steps{grid-template-columns:repeat(2,1fr)}}
+.step-c{text-align:center;padding:10px}
+.step-c .n{width:54px;height:54px;border-radius:16px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;
+  font-family:var(--disp);font-weight:700;font-size:22px;margin:0 auto 16px}
+.step-c h4{font-size:16px;margin-bottom:7px}.step-c p{color:var(--muted);font-size:13px;line-height:1.5}
+.web-cta{background:linear-gradient(135deg,var(--primary),var(--primary-2));margin:0 40px 62px;border-radius:26px;padding:54px;text-align:center;color:#fff}
+.web-cta h2{font-size:32px;margin-bottom:12px}.web-cta p{color:#dfe0ff;margin-bottom:26px}
+.web-foot{background:#0B1029;color:#9aa3cf;padding:40px;font-size:13px;text-align:center}
+.web-foot .lg{color:#fff;font-family:var(--disp);font-weight:700;font-size:17px;margin-bottom:8px}
+
+/* service detail page */
+.detail-head{background:linear-gradient(150deg,#1b2150,#0B1029);color:#fff;padding:46px 40px}
+.detail-body{padding:40px;display:grid;grid-template-columns:1.6fr 1fr;gap:30px;max-width:1080px;margin:0 auto}
+@media(max-width:820px){.detail-body{grid-template-columns:1fr}}
+.spec{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;font-size:14px;color:var(--ink)}
+.spec .tick{color:var(--success);font-weight:700}
+.buybox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px;position:sticky;top:90px;box-shadow:var(--shadow)}
+
+/* ===== ADMIN ===== */
+.admin{display:flex;min-height:780px;background:var(--bg)}
+.sidebar{width:230px;background:#0B1029;color:#fff;padding:20px 14px;flex:none}
+.sidebar .brand{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:700;margin:6px 8px 22px}
+.sidebar .brand .lg{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary-2),var(--accent));display:grid;place-items:center}
+.nav-i{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:11px;font-size:13.5px;font-weight:500;color:#9aa3cf;margin-bottom:3px;cursor:pointer}
+.nav-i:hover{background:#ffffff0d;color:#fff}
+.nav-i.on{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff}
+.nav-i .ni{font-size:16px;width:20px;text-align:center}
+.nav-sep{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#5b648f;margin:18px 12px 8px;font-family:var(--mono)}
+.admin-main{flex:1;overflow-x:hidden}
+.admin-top{display:flex;align-items:center;gap:16px;padding:16px 26px;background:#fff;border-bottom:1px solid var(--line)}
+.admin-top h3{font-size:18px}
+.admin-top .search{margin-left:auto;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--muted);width:240px}
+.admin-content{padding:24px 26px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
+.kpi .kl{font-size:12px;color:var(--muted);font-weight:600;display:flex;align-items:center;gap:8px}
+.kpi .kv{font-family:var(--disp);font-size:28px;font-weight:700;margin:8px 0 4px}
+.kpi .kd{font-size:12px;font-weight:600}
+.kpi .up{color:var(--success)}.kpi .down{color:var(--danger)}
+.kpi .ki{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.panel-h{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
+.panel-h h4{font-size:15px}
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:18px}
+@media(max-width:1100px){.cols{grid-template-columns:1fr}}
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th{text-align:left;padding:11px 18px;color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.04em;text-transform:uppercase;border-bottom:1px solid var(--line)}
+.table td{padding:13px 18px;border-bottom:1px solid var(--line)}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#fafbff}
+.dispatch-job{padding:14px 18px;border-bottom:1px solid var(--line)}
+.dispatch-job:hover{background:#fafbff}
+.eng-opt{display:flex;align-items:center;gap:11px;padding:11px;border:1px solid var(--line);border-radius:12px;margin-bottom:9px}
+.eng-opt.best{border-color:var(--accent);background:var(--accent-soft)}
+.score{margin-left:auto;font-family:var(--mono);font-weight:700;font-size:13px;color:var(--primary)}
+.toggle{width:42px;height:24px;border-radius:99px;background:var(--success);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;right:3px}
+.toggle.off{background:#cbd5e1}.toggle.off::after{right:auto;left:3px}
+.bar-track{height:8px;background:var(--line);border-radius:9px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-2));border-radius:9px}
+.mini-chart{display:flex;align-items:flex-end;gap:7px;height:120px;padding:8px 0}
+.mini-chart .bar{flex:1;background:linear-gradient(180deg,var(--primary-2),var(--primary));border-radius:6px 6px 0 0;min-height:6px}
+.mini-chart .bar.alt{background:linear-gradient(180deg,#2dd4bf,var(--accent))}
+
+.int-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:1100px){.int-grid{grid-template-columns:1fr}}
+.helper{background:#0e1430;border:1px solid #ffffff14;border-radius:12px;padding:11px 15px;color:#9aa3cf;font-size:12px;display:flex;gap:9px;align-items:center;max-width:1180px;margin:0 auto 16px;font-family:var(--mono)}
+.helper b{color:var(--accent);font-weight:600}
+
+/* ===== theme toggle + LIGHT THEME ===== */
+.theme-toggle{color:#aab1d6;background:#ffffff12;font-size:13px;font-weight:600;padding:8px 14px;border-radius:99px;transition:.15s;margin-left:10px}
+.theme-toggle:hover{color:#fff;background:#ffffff1f}
+body.light{background:
+  radial-gradient(1100px 560px at 82% -10%, #4338ca14, transparent),
+  radial-gradient(900px 500px at -10% 110%, #0ea5a414, transparent),
+  #EDF0F7;}
+body.light .toolbar{background:rgba(255,255,255,.9);border-bottom:1px solid var(--line)}
+body.light .toolbar .brand{color:var(--ink)}
+body.light .toolbar .tabs button{color:var(--muted)}
+body.light .toolbar .tabs button:hover{color:var(--ink);background:#0f172a0d}
+body.light .toolbar .tabs button.on{color:#fff}
+body.light .theme-toggle{color:var(--muted);background:#0f172a0d}
+body.light .theme-toggle:hover{color:var(--ink);background:#0f172a17}
+body.light .hub-head,body.light .hub-head h1{color:var(--ink)}
+body.light .hub-head p{color:var(--muted)}
+body.light .hub-card{background:#fff;border:1px solid var(--line);color:var(--ink)}
+body.light .hub-card:hover{border-color:#cbd2e6;box-shadow:var(--shadow)}
+body.light .hub-card p{color:var(--muted)}
+body.light .hub-card .glow{opacity:.16}
+body.light .hub-flow{background:#fff;border:1px solid var(--line)}
+body.light .hub-flow h4{color:var(--ink)}
+body.light .flow-row{color:var(--ink)}
+body.light .flow-row .step{background:var(--primary-soft);border:1px solid #dfe2f5;color:var(--primary)}
+body.light .hub-note{color:var(--muted)}
+body.light .frame-caption{color:var(--muted)}
+body.light .helper{background:#fff;border:1px solid var(--line);color:var(--muted)}
+body.light .helper b{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="brand"><div class="logo">S</div> Servora <span style="font-family:var(--font);font-weight:500;color:#7e87b5;font-size:12px">· Prototype</span></div>
+  <div class="tabs">
+    <button id="t-hub" class="on" onclick="go('hub')">⌂ Hub</button>
+    <button id="t-website" onclick="go('website')">🌐 Website</button>
+    <button id="t-customer" onclick="go('customer')">📱 Customer App</button>
+    <button id="t-engineer" onclick="go('engineer')">🔧 Engineer App</button>
+    <button id="t-admin" onclick="go('admin')">🖥 Admin Panel</button>
+  </div>
+  <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">☀️ Light</button>
+</div>
+
+<div class="stage">
+
+<!-- ===================== HUB ===================== -->
+<section id="s-hub" class="surface on">
+  <div class="hub-head">
+    <div class="eyebrow">IT Services Marketplace · UI/UX</div>
+    <h1>Built to dispatch <span>the right engineer</span>, fast.</h1>
+    <p>Servora connects companies with verified IT engineers — network, cloud, security & system admin — with auto-assignment, live tracking, and OTP-verified completion. Four connected surfaces, fully admin-controlled.</p>
+  </div>
+
+  <div class="hub-grid">
+    <button class="hub-card" onclick="go('website')">
+      <div class="glow" style="background:var(--primary-2)"></div>
+      <div class="ic" style="background:var(--primary-soft);color:var(--primary)">🌐</div>
+      <h3>Marketing Website</h3>
+      <p>Company portfolio, service catalog, "how it works", and lead capture for businesses.</p>
+      <span class="open">Open surface →</span>
+    </button>
+    <button class="hub-card" onclick="go('customer')">
+      <div class="glow" style="background:var(--accent)"></div>
+      <div class="ic" style="background:var(--accent-soft);color:var(--accent)">📱</div>
+      <h3>Customer App</h3>
+      <p>Browse services, book, apply coupons, pay, track engineer live, verify with OTP, rate.</p>
+      <span class="open">Open surface →</span>
+    </button>
+    <button class="hub-card" onclick="go('engineer')">
+      <div class="glow" style="background:var(--signal)"></div>
+      <div class="ic" style="background:var(--signal-soft);color:#B45309">🔧</div>
+      <h3>Engineer App</h3>
+      <p>Go online, receive skill+location matched jobs, navigate, start & close jobs with OTP, get paid.</p>
+      <span class="open">Open surface →</span>
+    </button>
+    <button class="hub-card" onclick="go('admin')">
+      <div class="glow" style="background:#a855f7"></div>
+      <div class="ic" style="background:#f3e8ff;color:#7e22ce">🖥</div>
+      <h3>Admin Panel</h3>
+      <p>The brain. Catalog, dispatch, KYC approvals, payouts, commission, coupons, disputes, analytics.</p>
+      <span class="open">Open surface →</span>
+    </button>
+  </div>
+
+  <div class="hub-flow">
+    <h4>End-to-end job flow</h4>
+    <div class="flow-row">
+      <span class="step">Customer books</span><span class="arr">→</span>
+      <span class="step">Auto-match (skill + location)</span><span class="arr">→</span>
+      <span class="step">Engineer accepts</span><span class="arr">→</span>
+      <span class="step">Navigate + Start OTP</span><span class="arr">→</span>
+      <span class="step">Work + Photo proof</span><span class="arr">→</span>
+      <span class="step">Completion OTP</span><span class="arr">→</span>
+      <span class="step">Escrow release + Rating</span>
+    </div>
+  </div>
+
+  <p class="hub-note">Tap any card to enter that surface. Inside each, components are clickable — tap a service, a job, a coupon, the online toggle — to see the next screen. Switch surfaces anytime from the top bar.</p>
+</section>
+
+<!-- ===================== WEBSITE ===================== -->
+<section id="s-website" class="surface">
+  <div class="helper">▸ <span><b>Clickable:</b> navbar links · service tiles → service detail · "Get started" / "Book a service" → opens Customer App · "Join as engineer" → Engineer App.</span></div>
+  <div class="browser">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://servora.io</div></div>
+    <div class="view" id="webview">
+
+      <!-- WEB HOME -->
+      <div class="screen on web" data-group="web" id="web-home">
+        <nav class="web-nav">
+          <div class="brand"><div class="lg">S</div> Servora</div>
+          <a onclick="wgo('web-services')">Services</a>
+          <a onclick="wgo('web-home')">How it works</a>
+          <a onclick="wgo('web-home')">Portfolio</a>
+          <a onclick="go('engineer')">For engineers</a>
+          <div class="sp"></div>
+          <button class="btn btn-ghost btn-sm" onclick="go('admin')">Admin</button>
+          <button class="btn btn-primary btn-sm" onclick="go('customer')">Get started</button>
+        </nav>
+
+        <div class="web-hero">
+          <div class="eyebrow">Network · Cloud · Security · System Admin</div>
+          <h1>On-demand IT engineers, <span>dispatched in minutes.</span></h1>
+          <p>Pick a service or describe a custom problem. We auto-assign the nearest qualified engineer, track them live, and verify completion with an OTP. You only pay when the job is done.</p>
+          <div class="cta-row">
+            <button class="btn btn-primary" onclick="go('customer')">Book a service →</button>
+            <button class="btn btn-ghost" onclick="go('engineer')">Join as an engineer</button>
+          </div>
+          <div class="hero-stats">
+            <div class="s"><b>2,400+</b><span>Jobs completed</span></div>
+            <div class="s"><b>18 min</b><span>Avg. dispatch time</span></div>
+            <div class="s"><b>4.9★</b><span>Customer rating</span></div>
+          </div>
+          <div class="hero-map">
+            <div class="map tall" style="background:#11173255">
+              <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div>
+              <div class="ping center"></div>
+              <div class="mk" style="top:30%;left:28%"><div class="pin" style="background:var(--signal)">🔧</div><div class="lab">2.1 km</div></div>
+              <div class="mk" style="top:24%;left:70%"><div class="pin" style="background:var(--primary)">🔧</div><div class="lab">3.4 km</div></div>
+              <div class="mk" style="top:74%;left:64%"><div class="pin" style="background:var(--primary)">🔧</div><div class="lab">4.0 km</div></div>
+              <div class="eta-pill">📍 Site · matching engineers…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="web-sec">
+          <div class="kicker">What we handle</div>
+          <h2>One platform, every IT service</h2>
+          <p class="sub">Predefined packages with fixed pricing, or a fully custom request our team quotes for you.</p>
+          <div class="svc-grid">
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--primary-soft);color:var(--primary)">🌐</div><h4>Network Setup</h4><p>Routers, switches, structured cabling, VLANs and secure office Wi-Fi.</p><div class="from">From ₹4,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--accent-soft);color:var(--accent)">🖥</div><h4>System Administration</h4><p>Server setup, AD, backups, OS hardening and ongoing maintenance.</p><div class="from">From ₹6,499</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--signal-soft);color:#B45309">☁️</div><h4>Cloud Migration</h4><p>Move workloads to AWS / Azure / GCP with zero-downtime planning.</p><div class="from">From ₹12,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#fde8ef;color:#be123c">🛡</div><h4>Cybersecurity Audit</h4><p>Vulnerability assessment, firewall review and a remediation report.</p><div class="from">From ₹9,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#e8f0fe;color:#1e40af">🎧</div><h4>Managed Helpdesk</h4><p>Monthly retainer for unlimited L1/L2 support tickets for your team.</p><div class="from">₹14,999 / mo</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#ecfdf5;color:#047857">🧩</div><h4>Custom Request</h4><p>Describe any IT problem — we scope it and send you a quote.</p><div class="from">Get a quote</div></div>
+          </div>
+        </div>
+
+        <div class="web-sec" style="background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+          <div class="kicker">How it works</div>
+          <h2>From request to resolved</h2>
+          <p class="sub">Four steps. Fully transparent, fully tracked.</p>
+          <div class="steps">
+            <div class="step-c"><div class="n">1</div><h4>Pick or describe</h4><p>Choose a package or post a custom request with your requirements.</p></div>
+            <div class="step-c"><div class="n">2</div><h4>We dispatch</h4><p>The nearest skill-matched engineer is assigned and starts heading over.</p></div>
+            <div class="step-c"><div class="n">3</div><h4>Track live</h4><p>Follow your engineer on the map and chat with them in-app.</p></div>
+            <div class="step-c"><div class="n">4</div><h4>Verify & pay</h4><p>Approve with an OTP, see the proof photos, then payment releases.</p></div>
+          </div>
+        </div>
+
+        <div class="web-cta">
+          <h2>Ready when your network isn't.</h2>
+          <p>Get a qualified engineer on-site or remote, today.</p>
+          <button class="btn btn-ghost" onclick="go('customer')">Open the app →</button>
+        </div>
+        <div class="web-foot"><div class="lg">Servora</div>IT expertise, on demand. · Network · Cloud · Security · Helpdesk<br><span style="opacity:.6">© 2026 Servora Technologies</span></div>
+      </div>
+
+      <!-- WEB SERVICES -->
+      <div class="screen web" data-group="web" id="web-services">
+        <nav class="web-nav">
+          <div class="brand"><div class="lg">S</div> Servora</div>
+          <a onclick="wgo('web-home')">Home</a><a onclick="wgo('web-services')">Services</a><a onclick="wgo('web-home')">Portfolio</a>
+          <div class="sp"></div>
+          <button class="btn btn-primary btn-sm" onclick="go('customer')">Get started</button>
+        </nav>
+        <div class="detail-head"><div class="eyebrow" style="font-family:var(--mono);font-size:12px;letter-spacing:.2em;color:var(--accent)">CATALOG</div><h1 style="font-size:38px;margin-top:10px">All services</h1><p style="color:#b9c0e6;margin-top:8px">Transparent fixed pricing. Tap any service for the full scope.</p></div>
+        <div class="web-sec" style="padding-top:36px">
+          <div class="svc-grid">
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--primary-soft);color:var(--primary)">🌐</div><h4>Network Setup</h4><p>Routers, switches, cabling, VLANs, secure Wi-Fi.</p><div class="from">From ₹4,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--accent-soft);color:var(--accent)">🖥</div><h4>System Administration</h4><p>Servers, AD, backups, OS hardening.</p><div class="from">From ₹6,499</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:var(--signal-soft);color:#B45309">☁️</div><h4>Cloud Migration</h4><p>AWS / Azure / GCP migrations.</p><div class="from">From ₹12,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#fde8ef;color:#be123c">🛡</div><h4>Cybersecurity Audit</h4><p>VA, firewall review, remediation.</p><div class="from">From ₹9,999</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#e8f0fe;color:#1e40af">🎧</div><h4>Managed Helpdesk</h4><p>Monthly L1/L2 support retainer.</p><div class="from">₹14,999 / mo</div></div>
+            <div class="svc-tile" onclick="wgo('web-detail')"><div class="ti" style="background:#ecfdf5;color:#047857">🧩</div><h4>Custom Request</h4><p>We scope it and quote you.</p><div class="from">Get a quote</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WEB SERVICE DETAIL -->
+      <div class="screen web" data-group="web" id="web-detail">
+        <nav class="web-nav">
+          <div class="brand"><div class="lg">S</div> Servora</div>
+          <a onclick="wgo('web-services')">← Back to catalog</a>
+          <div class="sp"></div>
+          <button class="btn btn-primary btn-sm" onclick="go('customer')">Book now</button>
+        </nav>
+        <div class="detail-head">
+          <span class="chip teal" style="margin-bottom:14px">Network Infrastructure</span>
+          <h1 style="font-size:40px">Network Setup & Configuration</h1>
+          <p style="color:#b9c0e6;margin-top:10px;max-width:600px">A certified network engineer designs and deploys a reliable, secure office network — on-site, end to end.</p>
+        </div>
+        <div class="detail-body">
+          <div>
+            <h3 style="font-size:20px;margin-bottom:16px">What's included</h3>
+            <div class="spec"><span class="tick">✓</span><div><b>Site survey & design</b> — assess layout, plan coverage and switch placement.</div></div>
+            <div class="spec"><span class="tick">✓</span><div><b>Hardware configuration</b> — routers, managed switches, access points, VLAN segmentation.</div></div>
+            <div class="spec"><span class="tick">✓</span><div><b>Secure Wi-Fi</b> — WPA3, guest network isolation, bandwidth policies.</div></div>
+            <div class="spec"><span class="tick">✓</span><div><b>Structured cabling</b> — tidy, labelled runs with a documented patch panel.</div></div>
+            <div class="spec"><span class="tick">✓</span><div><b>Testing & handover</b> — speed tests, documentation, and a 14-day support window.</div></div>
+            <div class="divider"></div>
+            <h3 style="font-size:18px;margin-bottom:12px">Add-ons</h3>
+            <div class="row" style="flex-wrap:wrap"><span class="chip ghost">Firewall hardening +₹2,500</span><span class="chip ghost">VPN setup +₹1,800</span><span class="chip ghost">NAS / backup +₹3,000</span></div>
+          </div>
+          <div class="buybox">
+            <div class="muted sm">Starting at</div>
+            <div style="font-family:var(--disp);font-size:34px;font-weight:700;margin:2px 0 4px">₹4,999</div>
+            <div class="muted tiny" style="margin-bottom:16px">Final price confirmed after site survey</div>
+            <div class="row between sm" style="margin-bottom:10px"><span class="muted">Avg. completion</span><b>3–5 hrs</b></div>
+            <div class="row between sm" style="margin-bottom:10px"><span class="muted">Engineers available</span><b style="color:var(--success)">6 nearby</b></div>
+            <div class="row between sm" style="margin-bottom:18px"><span class="muted">Rating</span><span class="stars">★★★★★ <span class="muted">(312)</span></span></div>
+            <button class="btn btn-primary btn-block" onclick="go('customer')">Book this service →</button>
+            <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="go('customer')">Request custom quote</button>
+          </div>
+        </div>
+        <div class="web-foot"><div class="lg">Servora</div>© 2026 Servora Technologies</div>
+      </div>
+
+    </div>
+  </div>
+  <p class="frame-caption">Marketing website · responsive · scroll inside the browser frame</p>
+</section>
+
+<!-- ===================== CUSTOMER APP ===================== -->
+<section id="s-customer" class="surface">
+  <div class="helper">▸ <span><b>Try the flow:</b> tap a service → book → apply coupon <b>SAVE20</b> → pay → watch live tracking → enter rating. Bottom tabs switch sections.</span></div>
+  <div class="frame-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-area">
+        <div class="statusbar"><span>9:41</span><span class="right">📶 🔋 100%</span></div>
+        <div class="app-body" id="cbody">
+
+          <!-- LOGIN -->
+          <div class="screen on" data-group="c" id="c-login">
+            <div style="padding:60px 26px 0;text-align:center">
+              <div class="avatar" style="width:64px;height:64px;border-radius:18px;margin:0 auto 18px;background:linear-gradient(135deg,var(--primary),var(--accent));font-size:26px">S</div>
+              <h2 style="font-size:24px">Welcome to Servora</h2>
+              <p class="muted sm" style="margin:8px 0 30px">IT expertise, on demand.</p>
+            </div>
+            <div class="pad">
+              <div class="field"><label>Business email</label><input class="input" value="ops@acmecorp.in"></div>
+              <div class="field"><label>Password</label><input class="input" type="password" value="••••••••"></div>
+              <button class="btn btn-primary btn-block" onclick="cgo('c-home')">Sign in</button>
+              <div class="row" style="margin:18px 0;color:var(--muted);font-size:12px"><div class="divider" style="flex:1"></div>or<div class="divider" style="flex:1"></div></div>
+              <button class="btn btn-ghost btn-block">Continue with Google</button>
+              <p class="muted tiny" style="text-align:center;margin-top:22px">New here? <b style="color:var(--primary)">Create a business account</b></p>
+            </div>
+          </div>
+
+          <!-- HOME -->
+          <div class="screen" data-group="c" id="c-home">
+            <div class="app-hero">
+              <div class="row between"><div><div class="greet">Good morning,</div><h2>Acme Corp 👋</h2></div><div class="avatar" style="background:#ffffff22">A</div></div>
+              <div class="searchbar">🔍 Search services — e.g. "firewall"</div>
+            </div>
+            <div class="pad">
+              <div class="section-h"><h4>Categories</h4></div>
+              <div class="cat-grid">
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:var(--primary-soft);color:var(--primary)">🌐</div>Network</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:var(--accent-soft);color:var(--accent)">🖥</div>Sys Admin</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:var(--signal-soft);color:#B45309">☁️</div>Cloud</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:#fde8ef;color:#be123c">🛡</div>Security</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:#e8f0fe;color:#1e40af">🎧</div>Helpdesk</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:#f3e8ff;color:#7e22ce">💾</div>Backup</div>
+                <div class="cat" onclick="cgo('c-detail')"><div class="ci" style="background:#ecfeff;color:#0e7490">📡</div>Wi-Fi</div>
+                <div class="cat" onclick="cgo('c-custom')"><div class="ci" style="background:#ecfdf5;color:#047857">🧩</div>Custom</div>
+              </div>
+
+              <div class="section-h"><h4>Offers for you</h4><a onclick="cgo('c-offers')">See all</a></div>
+              <div class="offer" onclick="cgo('c-offers')">
+                <div class="big">20%</div>
+                <div><b>SAVE20</b> on your first booking<br><span style="opacity:.85;font-size:12px">Up to ₹500 off · tap to view</span></div>
+              </div>
+
+              <div class="section-h"><h4>Popular services</h4><a onclick="cgo('c-detail')">View all</a></div>
+              <div class="svc" onclick="cgo('c-detail')" style="margin-bottom:10px"><div class="si" style="background:var(--primary-soft);color:var(--primary)">🌐</div><div style="flex:1"><h5>Network Setup</h5><div class="muted tiny">3–5 hrs · ★ 4.9 (312)</div></div><div class="price">₹4,999</div></div>
+              <div class="svc" onclick="cgo('c-detail')" style="margin-bottom:10px"><div class="si" style="background:#fde8ef;color:#be123c">🛡</div><div style="flex:1"><h5>Cybersecurity Audit</h5><div class="muted tiny">1 day · ★ 4.8 (140)</div></div><div class="price">₹9,999</div></div>
+              <div class="svc" onclick="cgo('c-detail')"><div class="si" style="background:var(--signal-soft);color:#B45309">☁️</div><div style="flex:1"><h5>Cloud Migration</h5><div class="muted tiny">2–3 days · ★ 5.0 (88)</div></div><div class="price">₹12,999</div></div>
+            </div>
+          </div>
+
+          <!-- SERVICE DETAIL -->
+          <div class="screen" data-group="c" id="c-detail">
+            <div class="appbar"><button class="back" onclick="cgo('c-home')">←</button><h3>Network Setup</h3><div class="ic">♡</div></div>
+            <div class="pad">
+              <div class="card" style="background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff;border:none">
+                <div class="row between"><span class="chip ghost" style="background:#ffffff22;color:#fff;border:none">Network</span><span class="stars" style="color:#FCD34D">★★★★★</span></div>
+                <h2 style="font-size:22px;margin:14px 0 6px">Network Setup & Config</h2>
+                <p style="opacity:.85;font-size:13px;line-height:1.5">Certified engineer designs & deploys your secure office network, on-site.</p>
+              </div>
+              <div class="row between" style="margin:18px 0"><div><div class="muted tiny">Starting at</div><div style="font-family:var(--disp);font-size:26px;font-weight:700">₹4,999</div></div><span class="chip teal">6 engineers nearby</span></div>
+              <h4 style="font-size:14px;margin-bottom:10px">What's included</h4>
+              <div class="spec"><span class="tick">✓</span><div class="sm">Site survey & network design</div></div>
+              <div class="spec"><span class="tick">✓</span><div class="sm">Router, switch & access-point config</div></div>
+              <div class="spec"><span class="tick">✓</span><div class="sm">VLAN segmentation + secure Wi-Fi (WPA3)</div></div>
+              <div class="spec"><span class="tick">✓</span><div class="sm">Testing, docs & 14-day support</div></div>
+              <div class="section-h"><h4 style="font-size:14px">Add-ons</h4></div>
+              <div class="scroll-x"><span class="chip ghost">+ Firewall ₹2,500</span><span class="chip ghost">+ VPN ₹1,800</span><span class="chip ghost">+ Backup ₹3,000</span></div>
+              <div class="section-h"><h4 style="font-size:14px">Customer reviews</h4><span class="stars">★ 4.9 (312)</span></div>
+              <div class="card" style="margin-bottom:10px">
+                <div class="row between"><div class="row"><div class="avatar" style="width:32px;height:32px;font-size:12px;background:var(--primary)">N</div><div><b class="tiny">Nova Labs</b><div class="stars" style="font-size:11px">★★★★★</div></div></div><span class="muted tiny">2 days ago</span></div>
+                <p class="sm muted" style="margin-top:8px">Rohit set up our office network cleanly and documented every cable. Super professional.</p>
+              </div>
+              <div class="card">
+                <div class="row between"><div class="row"><div class="avatar" style="width:32px;height:32px;font-size:12px;background:var(--accent)">G</div><div><b class="tiny">Grid Systems</b><div class="stars" style="font-size:11px">★★★★★</div></div></div><span class="muted tiny">1 week ago</span></div>
+                <p class="sm muted" style="margin-top:8px">Fast dispatch, engineer arrived in 15 mins. VLAN setup was exactly what we needed.</p>
+              </div>
+              <button class="btn btn-primary btn-block" style="margin-top:22px" onclick="cgo('c-checkout')">Book — ₹4,999</button>
+            </div>
+          </div>
+
+          <!-- CUSTOM REQUEST -->
+          <div class="screen" data-group="c" id="c-custom">
+            <div class="appbar"><button class="back" onclick="cgo('c-home')">←</button><h3>Custom request</h3></div>
+            <div class="pad">
+              <p class="muted sm" style="margin-bottom:16px">Describe your problem. Our team reviews it and sends a quote — usually within 30 minutes.</p>
+              <div class="field"><label>Category</label><select class="input"><option>Network</option><option>Cloud</option><option>Security</option><option>Other</option></select></div>
+              <div class="field"><label>Describe the issue</label><textarea class="input" rows="4">Two office floors need to be connected with a secure link and a shared file server.</textarea></div>
+              <div class="field"><label>Preferred time</label><input class="input" value="Tomorrow, 11:00 AM"></div>
+              <div class="photo-up" style="margin-bottom:16px">📎 Attach photos / network diagram</div>
+              <button class="btn btn-primary btn-block" onclick="cgo('c-bookings')">Submit request</button>
+            </div>
+          </div>
+
+          <!-- CHECKOUT -->
+          <div class="screen" data-group="c" id="c-checkout">
+            <div class="appbar"><button class="back" onclick="cgo('c-detail')">←</button><h3>Confirm booking</h3></div>
+            <div class="pad">
+              <div class="card" style="margin-bottom:14px">
+                <div class="row between"><b class="sm">Network Setup</b><b>₹4,999</b></div>
+                <div class="divider"></div>
+                <div class="row" style="gap:10px"><span style="font-size:18px">📍</span><div class="sm"><b>Service address</b><div class="muted tiny">3rd Floor, Acme Corp, Sector 62, Noida</div></div><a class="sm" style="margin-left:auto;color:var(--primary);font-weight:600">Edit</a></div>
+                <div class="divider"></div>
+                <div class="row" style="gap:10px"><span style="font-size:18px">🗓</span><div class="sm"><b>Schedule</b><div class="muted tiny">Today · As soon as possible</div></div></div>
+              </div>
+
+              <div class="section-h"><h4 style="font-size:14px">Apply coupon</h4></div>
+              <div class="coupon"><span style="font-size:18px">🎟</span><div class="sm" style="flex:1"><b>SAVE20</b><div class="muted tiny">20% off, up to ₹500</div></div><button class="btn btn-amber btn-sm" onclick="applyCoupon()">Apply</button></div>
+
+              <div class="card" style="margin:16px 0;background:var(--bg)">
+                <div class="row between sm" style="margin-bottom:7px"><span class="muted">Subtotal</span><span>₹4,999</span></div>
+                <div class="row between sm" style="margin-bottom:7px" id="discRow" hidden><span style="color:var(--success)">Coupon SAVE20</span><span style="color:var(--success)">−₹500</span></div>
+                <div class="row between sm" style="margin-bottom:7px"><span class="muted">Taxes (18%)</span><span>₹810</span></div>
+                <div class="divider"></div>
+                <div class="row between"><b>Payable on completion</b><b id="payTotal" style="font-family:var(--disp);font-size:18px">₹5,809</b></div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="cgo('c-track')">Confirm booking</button>
+              <p class="muted tiny" style="text-align:center;margin-top:10px">🔒 No payment now. You'll choose how to pay when you complete the job — your OTP appears right after payment succeeds.</p>
+            </div>
+          </div>
+
+          <!-- LIVE TRACKING -->
+          <div class="screen" data-group="c" id="c-track">
+            <div class="appbar"><button class="back" onclick="cgo('c-home')">←</button><h3>Live tracking</h3><div class="ic">💬</div></div>
+            <div class="pad">
+              <span class="badge b-active" style="margin-bottom:10px;display:inline-block">● ENGINEER EN ROUTE</span>
+              <div class="map" style="margin-bottom:14px">
+                <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div>
+                <div class="ping center"></div>
+                <div class="mk" style="top:26%;left:30%"><div class="pin" style="background:var(--signal)">🔧</div><div class="lab">Rohit</div></div>
+                <div class="eta-pill">🛵 Arriving in 12 min</div>
+              </div>
+              <div class="card" style="margin-bottom:12px">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--signal),#FB923C)">R</div><div style="flex:1"><b class="sm">Rohit Sharma</b><div class="muted tiny">★ 4.9 · Network Engineer · CCNA</div></div><div class="ic" style="background:var(--success-soft);color:var(--success)">📞</div><div class="ic" style="margin-left:8px">💬</div></div>
+                <div class="divider"></div>
+                <div class="row between"><span class="muted tiny">Not the right fit?</span><a class="tiny" style="color:var(--primary);font-weight:700" onclick="cgo('c-change')">Change engineer / Reschedule →</a></div>
+              </div>
+              <div class="card">
+                <div class="row" style="gap:10px;margin-bottom:12px"><span style="color:var(--success)">●</span><div class="sm"><b>Confirmed</b><div class="muted tiny">9:02 AM</div></div></div>
+                <div class="row" style="gap:10px;margin-bottom:12px"><span style="color:var(--success)">●</span><div class="sm"><b>Engineer assigned — Rohit</b><div class="muted tiny">9:05 AM</div></div></div>
+                <div class="row" style="gap:10px;margin-bottom:12px"><span style="color:var(--primary)">●</span><div class="sm"><b>On the way</b><div class="muted tiny">9:18 AM · live</div></div></div>
+                <div class="row" style="gap:10px;opacity:.45"><span>○</span><div class="sm"><b>Work in progress</b></div></div>
+              </div>
+              <div class="card" style="margin-top:12px;background:var(--primary-soft);border-color:transparent">
+                <div class="row" style="gap:10px"><span style="font-size:18px">🔑</span><div class="sm" style="flex:1"><b>Your start OTP</b><div class="muted tiny">Share with the engineer when they arrive</div></div><b class="mono" style="font-size:18px;letter-spacing:3px;color:var(--primary)">4827</b></div>
+              </div>
+              <button class="btn btn-ghost btn-block" style="margin-top:14px" onclick="cgo('c-complete')">▸ Engineer finished — complete &amp; pay</button>
+            </div>
+          </div>
+
+          <!-- CHANGE ENGINEER -->
+          <div class="screen" data-group="c" id="c-change">
+            <div class="appbar"><button class="back" onclick="cgo('c-track')">←</button><h3>Change engineer</h3></div>
+            <div class="pad">
+              <p class="muted sm" style="margin-bottom:14px">Request a different engineer for this job, or reschedule. Compare their ratings below.</p>
+              <div class="card" style="margin-bottom:14px;background:var(--primary-soft);border-color:transparent">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--signal),#FB923C)">R</div><div style="flex:1"><b class="sm">Current: Rohit Sharma</b><div class="stars" style="font-size:11px">★ 4.9 · 2.1 km</div></div><span class="badge b-active">Assigned</span></div>
+              </div>
+              <div class="section-h"><h4 style="font-size:14px">Other available engineers</h4></div>
+              <div class="li"><div class="avatar" style="background:var(--primary)">P</div><div style="flex:1"><b class="sm">Priya Menon</b><div class="stars" style="font-size:11px">★ 4.7 · 3.4 km · Network</div></div><button class="btn btn-out btn-sm" onclick="cgo('c-track')">Assign</button></div>
+              <div class="li"><div class="avatar" style="background:var(--primary-2)">I</div><div style="flex:1"><b class="sm">Imran Khan</b><div class="stars" style="font-size:11px">★ 4.8 · 4.0 km · Network</div></div><button class="btn btn-out btn-sm" onclick="cgo('c-track')">Assign</button></div>
+              <div class="li"><div class="avatar" style="background:var(--accent)">A</div><div style="flex:1"><b class="sm">Anita Das</b><div class="stars" style="font-size:11px">★ 5.0 · 5.2 km · Network</div></div><button class="btn btn-out btn-sm" onclick="cgo('c-track')">Assign</button></div>
+              <div class="divider"></div>
+              <button class="btn btn-ghost btn-block" onclick="cgo('c-reschedule')">📅 Reschedule for later instead</button>
+            </div>
+          </div>
+
+          <!-- RESCHEDULE -->
+          <div class="screen" data-group="c" id="c-reschedule">
+            <div class="appbar"><button class="back" onclick="cgo('c-change')">←</button><h3>Reschedule</h3></div>
+            <div class="pad">
+              <p class="muted sm" style="margin-bottom:14px">Pick a new time — we'll re-dispatch a qualified engineer automatically.</p>
+              <div class="field"><label>Date</label><input class="input" value="Tomorrow · Fri, 12 Jun"></div>
+              <div class="section-h"><h4 style="font-size:14px">Available slots</h4></div>
+              <div class="row" style="flex-wrap:wrap;gap:8px">
+                <span class="chip ghost pick" onclick="pick(this)">9:00 AM</span>
+                <span class="chip ghost pick on" onclick="pick(this)">11:00 AM</span>
+                <span class="chip ghost pick" onclick="pick(this)">1:00 PM</span>
+                <span class="chip ghost pick" onclick="pick(this)">3:30 PM</span>
+                <span class="chip ghost pick" onclick="pick(this)">5:00 PM</span>
+              </div>
+              <button class="btn btn-primary btn-block" style="margin-top:20px" onclick="cgo('c-bookings')">Confirm reschedule</button>
+            </div>
+          </div>
+
+          <!-- COMPLETE: PAY → THEN OTP -->
+          <div class="screen" data-group="c" id="c-complete">
+            <div class="appbar"><button class="back" onclick="cgo('c-track')">←</button><h3>Complete &amp; pay</h3></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:14px">
+                <div style="font-size:40px">✅</div>
+                <h3 style="font-size:18px;margin:8px 0 4px">Rohit marked the job done</h3>
+                <p class="muted sm">Confirm completion from your side: pay to generate the OTP, then share it with Rohit.</p>
+              </div>
+              <h4 style="font-size:14px;margin-bottom:10px">Proof of work</h4>
+              <div class="row" style="gap:10px;margin-bottom:16px"><div class="photo-thumb" style="flex:1;height:90px">📷</div><div class="photo-thumb" style="flex:1;height:90px;background:linear-gradient(135deg,#94a3b8,#64748b)">📷</div></div>
+
+              <div id="payBlock">
+                <div class="section-h"><h4 style="font-size:14px">Choose payment method</h4></div>
+                <div class="pay sel" onclick="selPay(this)"><span style="font-size:18px">💳</span><div class="sm"><b>UPI</b><div class="muted tiny">GPay, PhonePe, Paytm</div></div><span class="radio"></span></div>
+                <div class="pay" onclick="selPay(this)"><span style="font-size:18px">🏦</span><div class="sm"><b>Card</b><div class="muted tiny">Visa · Mastercard</div></div><span class="radio"></span></div>
+                <div class="pay" onclick="selPay(this)"><span style="font-size:18px">📄</span><div class="sm"><b>Net banking</b><div class="muted tiny">All major banks</div></div><span class="radio"></span></div>
+                <div class="card" style="margin:6px 0 14px;background:var(--bg)">
+                  <div class="row between"><b>Amount payable</b><b style="font-family:var(--disp);font-size:18px">₹5,809</b></div>
+                </div>
+                <div class="card" style="background:#eef0f6;border-color:transparent;margin-bottom:14px;text-align:center">
+                  <div class="mono" style="font-size:22px;letter-spacing:8px;filter:blur(5px);color:var(--ink)">7193</div>
+                  <div class="muted tiny" style="margin-top:8px">🔒 Completion OTP unlocks after payment</div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="payReveal()">Pay ₹5,809 and complete</button>
+              </div>
+
+              <div id="otpBlock" style="display:none">
+                <div class="card" style="background:var(--success-soft);border-color:transparent;margin-bottom:14px;text-align:center">
+                  <div style="font-size:30px">✅</div><b class="sm">Payment successful · ₹5,809</b>
+                </div>
+                <div class="card" style="background:var(--signal-soft);border-color:transparent;margin-bottom:14px">
+                  <div class="row" style="gap:10px"><span style="font-size:18px">🔐</span><div class="sm" style="flex:1"><b>Your completion OTP</b><div class="muted tiny">Read it to Rohit — the job closes when he enters it</div></div><b class="mono" style="font-size:24px;letter-spacing:3px;color:#B45309">7193</b></div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="cgo('c-rate')">Continue to rating</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOMER RATE (engineer + company) -->
+          <div class="screen" data-group="c" id="c-rate">
+            <div class="appbar"><h3 style="padding-left:8px">Rate this job</h3><a class="sm" style="margin-left:auto;color:var(--muted);font-weight:600" onclick="cgo('c-home')">Skip</a></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:14px;background:var(--success-soft);border-color:transparent">
+                <div style="font-size:34px">🎉</div><h3 style="font-size:17px;margin:6px 0 2px">Job complete!</h3><p class="muted sm">Payment released · #SVR-2041</p>
+              </div>
+
+              <div class="card" style="margin-bottom:14px">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--signal),#FB923C)">R</div><div><b class="sm">Rate your engineer</b><div class="muted tiny">Rohit Sharma · Network Engineer</div></div></div>
+                <div class="rate" data-rated="0" style="justify-content:center"><span onclick="star(this,1)">★</span><span onclick="star(this,2)">★</span><span onclick="star(this,3)">★</span><span onclick="star(this,4)">★</span><span onclick="star(this,5)">★</span></div>
+                <div class="row" style="flex-wrap:wrap;gap:7px;justify-content:center"><span class="chip ghost pick" onclick="pick(this)">Professional</span><span class="chip ghost pick" onclick="pick(this)">On time</span><span class="chip ghost pick" onclick="pick(this)">Tidy work</span><span class="chip ghost pick" onclick="pick(this)">Explained well</span></div>
+                <textarea class="input" rows="2" placeholder="Write a review for Rohit (optional)" style="margin-top:12px"></textarea>
+              </div>
+
+              <div class="card" style="margin-bottom:14px">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent))">S</div><div><b class="sm">Rate Servora</b><div class="muted tiny">Your overall experience with us</div></div></div>
+                <div class="rate" data-rated="0" style="justify-content:center"><span onclick="star(this,1)">★</span><span onclick="star(this,2)">★</span><span onclick="star(this,3)">★</span><span onclick="star(this,4)">★</span><span onclick="star(this,5)">★</span></div>
+                <div class="row" style="flex-wrap:wrap;gap:7px;justify-content:center"><span class="chip ghost pick" onclick="pick(this)">Easy booking</span><span class="chip ghost pick" onclick="pick(this)">Fair pricing</span><span class="chip ghost pick" onclick="pick(this)">Fast dispatch</span><span class="chip ghost pick" onclick="pick(this)">Good support</span></div>
+                <textarea class="input" rows="2" placeholder="Write a review for Servora (optional)" style="margin-top:12px"></textarea>
+              </div>
+
+              <button class="btn btn-primary btn-block" onclick="cgo('c-home')">Submit ratings</button>
+              <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="cgo('c-home')">Skip for now</button>
+            </div>
+          </div>
+
+          <!-- BOOKINGS -->
+          <div class="screen" data-group="c" id="c-bookings">
+            <div class="appbar"><h3 style="padding-left:8px">My bookings</h3></div>
+            <div class="pad">
+              <div class="scroll-x" style="margin-bottom:14px"><span class="chip">Active</span><span class="chip ghost">Scheduled</span><span class="chip ghost">Completed</span></div>
+              <div class="li" onclick="cgo('c-track')"><div class="li-ic" style="background:var(--primary-soft);color:var(--primary)">🌐</div><div style="flex:1"><b class="sm">Network Setup</b><div class="muted tiny mono">#SVR-2041 · Rohit · en route</div></div><span class="badge b-active">LIVE</span></div>
+              <div class="li" onclick="cgo('c-custom')"><div class="li-ic" style="background:#ecfdf5;color:#047857">🧩</div><div style="flex:1"><b class="sm">Custom: floor link</b><div class="muted tiny mono">#SVR-2044 · awaiting quote</div></div><span class="badge b-pending">QUOTE</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">☁️</div><div style="flex:1"><b class="sm">Cloud Migration</b><div class="muted tiny mono">#SVR-2032 · scheduled Fri</div></div><span class="badge b-new">SOON</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">🛡</div><div style="flex:1"><b class="sm">Security Audit</b><div class="muted tiny mono">#SVR-1998 · ★ rated</div></div><span class="badge b-done">DONE</span></div>
+            </div>
+          </div>
+
+          <!-- OFFERS -->
+          <div class="screen" data-group="c" id="c-offers">
+            <div class="appbar"><h3 style="padding-left:8px">Offers & coupons</h3></div>
+            <div class="pad">
+              <div class="offer" style="margin-bottom:14px"><div class="big">20%</div><div><b>SAVE20</b> · First booking<br><span style="opacity:.85;font-size:12px">Up to ₹500 off · expires in 5 days</span></div></div>
+              <div class="coupon" style="margin-bottom:12px"><span style="font-size:18px">🎟</span><div class="sm" style="flex:1"><b>CLOUD15</b><div class="muted tiny">15% off any Cloud service</div></div><button class="btn btn-amber btn-sm">Use</button></div>
+              <div class="coupon" style="margin-bottom:12px"><span style="font-size:18px">🎟</span><div class="sm" style="flex:1"><b>RETAINER10</b><div class="muted tiny">10% off annual helpdesk plans</div></div><button class="btn btn-amber btn-sm">Use</button></div>
+              <div class="section-h"><h4 style="font-size:14px">Servora wallet</h4></div>
+              <div class="card" style="background:var(--dark);color:#fff;border:none"><div class="muted tiny" style="color:#9aa3cf">Available balance</div><div style="font-family:var(--disp);font-size:30px;font-weight:700;margin:4px 0">₹250</div><div class="tiny" style="color:#9aa3cf">Earned from referrals · 1 friend joined</div></div>
+            </div>
+          </div>
+
+          <!-- PROFILE -->
+          <div class="screen" data-group="c" id="c-profile">
+            <div class="appbar"><h3 style="padding-left:8px">Profile</h3></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:14px"><div class="avatar" style="width:64px;height:64px;margin:0 auto 10px;background:linear-gradient(135deg,var(--primary),var(--accent));font-size:24px">A</div><h3 style="font-size:18px">Acme Corp</h3><div class="muted sm">ops@acmecorp.in</div><span class="chip teal" style="margin-top:10px">Business account · Verified</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--primary-soft);color:var(--primary)">📍</div><div style="flex:1"><b class="sm">Saved addresses</b><div class="muted tiny">2 locations</div></div><span class="muted">›</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--accent-soft);color:var(--accent)">💳</div><div style="flex:1"><b class="sm">Payment methods</b><div class="muted tiny">UPI · 1 card</div></div><span class="muted">›</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">🧾</div><div style="flex:1"><b class="sm">Invoices & GST</b><div class="muted tiny">Download history</div></div><span class="muted">›</span></div>
+              <div class="li"><div class="li-ic" style="background:#f1f5f9;color:var(--muted)">⚙️</div><div style="flex:1"><b class="sm">Settings & support</b></div><span class="muted">›</span></div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tabbar" id="ctab">
+          <button class="on" data-t="c-home" onclick="ctab('c-home',this)"><span class="ti">⌂</span>Home</button>
+          <button data-t="c-bookings" onclick="ctab('c-bookings',this)"><span class="ti">📋</span>Bookings</button>
+          <button data-t="c-offers" onclick="ctab('c-offers',this)"><span class="ti">🎟</span>Offers</button>
+          <button data-t="c-profile" onclick="ctab('c-profile',this)"><span class="ti">👤</span>Profile</button>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption">Customer app · iOS & Android (single codebase)</p>
+  </div>
+</section>
+
+<!-- ===================== ENGINEER APP ===================== -->
+<section id="s-engineer" class="surface">
+  <div class="helper">▸ <span><b>Try the flow:</b> go online → accept the incoming job (with peak bonus) → navigate → start OTP → photo → completion OTP → earnings. Open the <b>🎯 Rewards</b> tab for quests, tiers & bonuses.</span></div>
+  <div class="frame-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen-area">
+        <div class="statusbar"><span>9:41</span><span class="right">📶 🔋 100%</span></div>
+        <div class="app-body" id="ebody">
+
+          <!-- LOGIN / KYC -->
+          <div class="screen on" data-group="e" id="e-login">
+            <div style="padding:50px 26px 0;text-align:center">
+              <div class="avatar" style="width:64px;height:64px;border-radius:18px;margin:0 auto 16px;background:linear-gradient(135deg,var(--signal),#FB923C);font-size:26px">🔧</div>
+              <h2 style="font-size:22px">Servora for Engineers</h2>
+              <p class="muted sm" style="margin:8px 0 24px">Earn on your schedule.</p>
+            </div>
+            <div class="pad">
+              <div class="card" style="margin-bottom:16px">
+                <b class="sm">Verification status</b>
+                <div class="row" style="gap:10px;margin-top:12px"><span style="color:var(--success)">✓</span><div class="sm">Identity (Aadhaar) verified</div></div>
+                <div class="row" style="gap:10px;margin-top:10px"><span style="color:var(--success)">✓</span><div class="sm">Skills: CCNA, AWS SAA approved</div></div>
+                <div class="row" style="gap:10px;margin-top:10px"><span style="color:var(--success)">✓</span><div class="sm">Bank account linked</div></div>
+                <span class="chip teal" style="margin-top:14px">Approved by admin · ready to work</span>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="ego('e-home')">Enter dashboard</button>
+            </div>
+          </div>
+
+          <!-- HOME / ONLINE TOGGLE -->
+          <div class="screen" data-group="e" id="e-home">
+            <div class="app-hero" style="background:linear-gradient(150deg,#B45309,#92400E)">
+              <div class="row between"><div class="row"><div class="avatar" style="background:#ffffff22">R</div><div><b style="font-size:15px">Rohit Sharma</b><div class="greet">★ 4.9 · Network Engineer</div></div></div></div>
+              <div class="card" style="background:#ffffff1a;border:none;color:#fff;margin-top:18px">
+                <div class="row between"><div><div style="opacity:.85;font-size:12px">You're online</div><div style="font-size:13px;opacity:.7">Receiving jobs within 15 km</div></div><div class="toggle" id="onTog" onclick="toggleOnline()"></div></div>
+              </div>
+            </div>
+            <div class="pad">
+              <div class="row" style="gap:12px;margin:18px 0">
+                <div class="card" style="flex:1;text-align:center"><div class="muted tiny">Today's earnings</div><div style="font-family:var(--disp);font-size:22px;font-weight:700;color:var(--success)">₹3,200</div></div>
+                <div class="card" style="flex:1;text-align:center"><div class="muted tiny">Jobs done</div><div style="font-family:var(--disp);font-size:22px;font-weight:700">4</div></div>
+              </div>
+              <div class="card" style="cursor:pointer;margin-bottom:14px;border-color:#a855f733;background:linear-gradient(135deg,#faf5ff,#f3e8ff)" onclick="ego('e-rewards')">
+                <div class="row between" style="margin-bottom:9px"><b class="sm">🎯 Weekly quest · earn +₹800</b><span class="chip amber">8/12</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:66%"></div></div>
+                <div class="muted tiny" style="margin-top:7px">4 more jobs to unlock your bonus · tap to see all rewards</div>
+              </div>
+              <div class="card" style="background:var(--primary-soft);border-color:transparent;text-align:center;cursor:pointer" onclick="ego('e-offer')">
+                <div style="font-size:13px;font-weight:600;color:var(--primary)">▸ Simulate an incoming job request</div>
+              </div>
+              <div class="section-h"><h4 style="font-size:14px">Upcoming scheduled</h4></div>
+              <div class="li"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">☁️</div><div style="flex:1"><b class="sm">Cloud Migration</b><div class="muted tiny mono">Fri 11:00 · Sector 18</div></div><span class="badge b-new">SOON</span></div>
+            </div>
+          </div>
+
+          <!-- INCOMING OFFER -->
+          <div class="screen" data-group="e" id="e-offer">
+            <div style="background:var(--dark);min-height:740px;color:#fff;padding:28px 22px;text-align:center">
+              <span class="chip amber" style="margin-bottom:18px">● NEW JOB · skill matched</span>
+              <div class="ring-wrap" style="margin:0 auto 8px;width:90px;height:90px">
+                <svg width="90" height="90"><circle cx="45" cy="45" r="40" stroke="#ffffff22" stroke-width="6" fill="none"/><circle cx="45" cy="45" r="40" stroke="#0EA5A4" stroke-width="6" fill="none" stroke-dasharray="251" stroke-dashoffset="60" stroke-linecap="round"/></svg>
+                <div class="num" style="color:#fff">42<span style="font-size:12px">s</span></div>
+              </div>
+              <h2 style="font-size:22px;color:#fff">Network Setup</h2>
+              <div class="mono" style="color:#9aa3cf;font-size:12px;margin-top:4px">#SVR-2041</div>
+              <div class="card" style="background:#ffffff10;border:none;color:#fff;text-align:left;margin:20px 0">
+                <div class="row between" style="margin-bottom:12px"><div class="row"><div class="avatar" style="width:34px;height:34px;font-size:13px;background:var(--primary)">A</div><div><b class="sm" style="color:#fff">Acme Corp</b><div class="stars" style="font-size:11px">★ 4.8 · 14 jobs</div></div></div></div>
+                <div class="divider" style="background:#ffffff1a;margin:0 0 12px"></div>
+                <div class="row between" style="margin-bottom:12px"><span class="muted" style="color:#9aa3cf">Payout</span><b style="font-family:var(--disp);font-size:20px;color:#fff">₹3,500</b></div>
+                <div class="row" style="gap:10px;margin-bottom:10px;color:#dbe0f5"><span>📍</span><div class="sm">Acme Corp, Sector 62, Noida</div></div>
+                <div class="row" style="gap:10px;margin-bottom:10px;color:#dbe0f5"><span>📏</span><div class="sm">2.1 km away · ~8 min</div></div>
+                <div class="row" style="gap:10px;color:#dbe0f5"><span>🧰</span><div class="sm">Router config · VLAN · Wi-Fi setup</div></div>
+                <div class="divider" style="background:#ffffff1a"></div>
+                <div class="row between"><span class="chip amber">⚡ Peak-hour bonus</span><b style="color:#fbbf24">+₹150</b></div>
+              </div>
+              <button class="btn btn-primary btn-block" onclick="ego('e-navigate')">Accept job</button>
+              <button class="btn btn-block" style="margin-top:10px;background:#ffffff14;color:#fff" onclick="ego('e-home')">Decline</button>
+            </div>
+          </div>
+
+          <!-- NAVIGATE -->
+          <div class="screen" data-group="e" id="e-navigate">
+            <div class="appbar"><button class="back" onclick="ego('e-home')">←</button><h3>Navigate to site</h3></div>
+            <div class="pad">
+              <span class="badge b-active" style="margin-bottom:10px;display:inline-block">● HEADING TO CUSTOMER</span>
+              <div class="map" style="margin-bottom:14px">
+                <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div>
+                <div class="ping center"></div>
+                <div class="mk" style="top:30%;left:30%"><div class="pin" style="background:var(--signal)">🛵</div><div class="lab">You</div></div>
+                <div class="eta-pill">🧭 8 min · 2.1 km</div>
+              </div>
+              <button class="btn btn-dark btn-block" style="margin-bottom:14px">🧭 Open in Maps</button>
+              <div class="card">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent))">A</div><div style="flex:1"><b class="sm">Acme Corp</b><div class="muted tiny">3rd Floor · Sector 62, Noida</div></div><div class="ic" style="background:var(--success-soft);color:var(--success)">📞</div></div>
+              </div>
+              <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="ego('e-start')">I've arrived</button>
+            </div>
+          </div>
+
+          <!-- START OTP -->
+          <div class="screen" data-group="e" id="e-start">
+            <div class="appbar"><button class="back" onclick="ego('e-navigate')">←</button><h3>Start job</h3></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:16px"><div style="font-size:34px">🔑</div><h3 style="font-size:17px;margin:8px 0 4px">Enter the start OTP</h3><p class="muted sm">Ask the customer for the 4-digit code shown in their app.</p></div>
+              <div class="otp"><span class="f">4</span><span class="f">8</span><span class="f">2</span><span class="f">7</span></div>
+              <p class="muted tiny" style="text-align:center;margin-bottom:18px">This confirms you're on-site and starts the work timer.</p>
+              <button class="btn btn-primary btn-block" onclick="ego('e-work')">Verify & start</button>
+            </div>
+          </div>
+
+          <!-- WORK IN PROGRESS -->
+          <div class="screen" data-group="e" id="e-work">
+            <div class="appbar"><h3 style="padding-left:8px">Job in progress</h3><div class="ic mono" style="width:auto;padding:0 10px;font-size:13px">01:24</div></div>
+            <div class="pad">
+              <div class="card" style="margin-bottom:14px"><div class="row between"><b class="sm">Network Setup</b><span class="badge b-active">ACTIVE</span></div><div class="muted tiny mono" style="margin-top:4px">#SVR-2041 · Acme Corp</div></div>
+              <h4 style="font-size:14px;margin-bottom:10px">Task checklist</h4>
+              <div class="li" style="margin-bottom:8px"><span style="color:var(--success)">☑</span><div class="sm" style="flex:1">Router & switch configured</div></div>
+              <div class="li" style="margin-bottom:8px"><span style="color:var(--success)">☑</span><div class="sm" style="flex:1">VLAN segmentation done</div></div>
+              <div class="li" style="margin-bottom:8px"><span class="muted">☐</span><div class="sm" style="flex:1">Wi-Fi tested & documented</div></div>
+              <div class="section-h"><h4 style="font-size:14px">Proof of work</h4></div>
+              <div class="row" style="gap:10px;margin-bottom:8px"><div class="photo-thumb" style="flex:1;height:90px">📷</div><div class="photo-up" style="flex:1;height:90px;display:grid;place-items:center;padding:0">＋ Add</div></div>
+              <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="ego('e-finish')">Complete job</button>
+            </div>
+          </div>
+
+          <!-- COMPLETION OTP -->
+          <div class="screen" data-group="e" id="e-finish">
+            <div class="appbar"><button class="back" onclick="ego('e-work')">←</button><h3>Close job</h3></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:16px"><div style="font-size:34px">🔐</div><h3 style="font-size:17px;margin:8px 0 4px">Enter completion OTP</h3><p class="muted sm">The customer sees this OTP only after they pay. Ask them to read it out.</p></div>
+              <div class="otp"><span class="f">7</span><span class="f">1</span><span class="f">9</span><span class="f">3</span></div>
+              <div class="card" style="background:var(--success-soft);border-color:transparent;margin:6px 0 18px"><div class="row" style="gap:10px"><span>💰</span><div class="sm"><b>₹3,500</b> will be released to your wallet on verify.</div></div></div>
+              <button class="btn btn-primary btn-block" onclick="ego('e-rate-cust')">Verify & finish</button>
+            </div>
+          </div>
+
+          <!-- ENGINEER RATE CUSTOMER -->
+          <div class="screen" data-group="e" id="e-rate-cust">
+            <div class="appbar"><h3 style="padding-left:8px">Rate the customer</h3><a class="sm" style="margin-left:auto;color:var(--muted);font-weight:600" onclick="ego('e-earnings')">Skip</a></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:14px;background:var(--success-soft);border-color:transparent">
+                <div style="font-size:34px">✅</div><h3 style="font-size:17px;margin:6px 0 2px">Job closed · ₹3,500 added</h3><p class="muted sm">#SVR-2041 · Acme Corp</p>
+              </div>
+              <div class="card">
+                <div class="row"><div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--accent))">A</div><div><b class="sm">How was Acme Corp?</b><div class="muted tiny">Your rating is private — only admin sees it</div></div></div>
+                <div class="rate" data-rated="0" style="justify-content:center"><span onclick="star(this,1)">★</span><span onclick="star(this,2)">★</span><span onclick="star(this,3)">★</span><span onclick="star(this,4)">★</span><span onclick="star(this,5)">★</span></div>
+                <div class="row" style="flex-wrap:wrap;gap:7px;justify-content:center"><span class="chip ghost pick" onclick="pick(this)">Clear requirements</span><span class="chip ghost pick" onclick="pick(this)">Cooperative</span><span class="chip ghost pick" onclick="pick(this)">Safe site</span><span class="chip ghost pick" onclick="pick(this)">Prompt OTP</span></div>
+                <textarea class="input" rows="2" placeholder="Write a review (only admin can see this)" style="margin-top:12px"></textarea>
+              </div>
+              <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="ego('e-earnings')">Submit rating</button>
+              <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="ego('e-earnings')">Skip</button>
+            </div>
+          </div>
+
+          <!-- EARNINGS -->
+          <div class="screen" data-group="e" id="e-earnings">
+            <div class="appbar"><h3 style="padding-left:8px">Earnings</h3></div>
+            <div class="pad">
+              <div class="card" style="background:var(--dark);color:#fff;border:none;margin-bottom:14px"><div class="muted tiny" style="color:#9aa3cf">This week</div><div style="font-family:var(--disp);font-size:32px;font-weight:700;margin:4px 0">₹18,700</div><div class="row" style="gap:14px;margin-top:8px;font-size:12px;color:#9aa3cf"><span>12 jobs</span><span>·</span><span>★ 4.9 avg</span></div></div>
+              <div class="card" style="margin-bottom:14px;text-align:center"><div class="muted tiny">Available to withdraw</div><div style="font-family:var(--disp);font-size:24px;font-weight:700;color:var(--success);margin:4px 0">₹6,500</div><button class="btn btn-primary btn-sm" style="margin-top:6px">Withdraw to bank</button></div>
+              <div class="section-h"><h4 style="font-size:14px">Recent payouts</h4></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">✓</div><div style="flex:1"><b class="sm">Network Setup</b><div class="muted tiny mono">#SVR-2041 · today</div></div><b class="sm" style="color:var(--success)">+₹3,500</b></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">✓</div><div style="flex:1"><b class="sm">Wi-Fi Audit</b><div class="muted tiny mono">#SVR-2039 · today</div></div><b class="sm" style="color:var(--success)">+₹1,200</b></div>
+            </div>
+          </div>
+
+          <!-- ENGINEER REWARDS -->
+          <div class="screen" data-group="e" id="e-rewards">
+            <div class="app-hero" style="background:linear-gradient(150deg,#7e22ce,#5b21b6)">
+              <div class="row between"><div><div class="greet">Earn extra</div><h2>Rewards & bonuses</h2></div></div>
+              <div class="card" style="background:#ffffff1a;border:none;color:#fff;margin-top:16px">
+                <div class="row between"><div><div style="opacity:.85;font-size:12px">Bonus earned this month</div><div style="font-family:var(--disp);font-size:26px;font-weight:700">₹2,400</div></div><span class="chip" style="background:#ffffff22;color:#fff;border:none">🏆 Gold tier</span></div>
+              </div>
+            </div>
+            <div class="pad">
+              <div class="section-h"><h4 style="font-size:14px">Active quest</h4><span class="chip amber">2 days left</span></div>
+              <div class="card">
+                <div class="row between" style="margin-bottom:10px"><b class="sm">Weekly target — 12 jobs</b><b class="sm" style="color:var(--primary)">+₹800</b></div>
+                <div class="bar-track"><div class="bar-fill" style="width:66%"></div></div>
+                <div class="row between tiny muted" style="margin-top:8px"><span>8 of 12 done</span><span>4 more to unlock</span></div>
+              </div>
+
+              <div class="row" style="gap:12px;margin:14px 0">
+                <div class="card" style="flex:1;text-align:center"><div style="font-size:22px">🔥</div><div style="font-family:var(--disp);font-weight:700;font-size:18px">5 days</div><div class="muted tiny">Login streak</div></div>
+                <div class="card" style="flex:1;text-align:center"><div style="font-size:22px">🏆</div><div style="font-family:var(--disp);font-weight:700;font-size:18px">Gold</div><div class="muted tiny">18% commission</div></div>
+              </div>
+
+              <div class="section-h"><h4 style="font-size:14px">Available bonuses</h4></div>
+              <div class="li"><div class="li-ic" style="background:#ede9fe;color:#6d28d9">🌙</div><div style="flex:1"><b class="sm">Weekend Warrior</b><div class="muted tiny">5 jobs Sat–Sun</div></div><b class="sm" style="color:var(--success)">+₹600</b></div>
+              <div class="li"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">⚡</div><div style="flex:1"><b class="sm">Peak hours</b><div class="muted tiny">Jobs between 6–9 PM</div></div><b class="sm" style="color:var(--success)">+₹150/job</b></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">⭐</div><div style="flex:1"><b class="sm">5-star streak</b><div class="muted tiny">10 jobs rated 5★</div></div><b class="sm" style="color:var(--success)">+₹500</b></div>
+              <div class="li"><div class="li-ic" style="background:var(--accent-soft);color:var(--accent)">👥</div><div style="flex:1"><b class="sm">Refer an engineer</b><div class="muted tiny">Per verified join</div></div><b class="sm" style="color:var(--success)">+₹1,000</b></div>
+
+              <div class="section-h"><h4 style="font-size:14px">Your tier progress</h4></div>
+              <div class="card">
+                <div class="row between" style="margin-bottom:10px"><b class="sm">Gold → Platinum</b><span class="chip teal">15% commission</span></div>
+                <div class="bar-track"><div class="bar-fill" style="width:77%;background:linear-gradient(90deg,#a855f7,#7e22ce)"></div></div>
+                <div class="row between tiny muted" style="margin-top:8px"><span>62 of 80 jobs this month</span><span>+ priority dispatch</span></div>
+              </div>
+
+              <div class="section-h"><h4 style="font-size:14px">Recently earned</h4></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">🎯</div><div style="flex:1"><b class="sm">Weekly target hit</b><div class="muted tiny mono">last week</div></div><b class="sm" style="color:var(--success)">+₹800</b></div>
+              <div class="li"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">⚡</div><div style="flex:1"><b class="sm">Peak-hour bonuses</b><div class="muted tiny mono">this week · 3 jobs</div></div><b class="sm" style="color:var(--success)">+₹450</b></div>
+            </div>
+          </div>
+
+          <!-- ENGINEER PROFILE -->
+          <div class="screen" data-group="e" id="e-profile">
+            <div class="appbar"><h3 style="padding-left:8px">Profile</h3></div>
+            <div class="pad">
+              <div class="card" style="text-align:center;margin-bottom:14px"><div class="avatar" style="width:64px;height:64px;margin:0 auto 10px;background:linear-gradient(135deg,var(--signal),#FB923C);font-size:24px">R</div><h3 style="font-size:18px">Rohit Sharma</h3><div class="muted sm">★ 4.9 · 312 jobs</div><span class="chip teal" style="margin-top:10px">Verified engineer</span></div>
+              <div class="section-h"><h4 style="font-size:14px">Skills</h4></div>
+              <div class="row" style="flex-wrap:wrap;gap:8px;margin-bottom:8px"><span class="chip">CCNA</span><span class="chip">AWS SAA</span><span class="chip">Network</span><span class="chip">Firewalls</span><span class="chip ghost">+ Add skill</span></div>
+              <div class="li" style="margin-top:10px"><div class="li-ic" style="background:var(--primary-soft);color:var(--primary)">🏦</div><div style="flex:1"><b class="sm">Bank & payouts</b></div><span class="muted">›</span></div>
+              <div class="li"><div class="li-ic" style="background:var(--accent-soft);color:var(--accent)">📄</div><div style="flex:1"><b class="sm">Documents & KYC</b></div><span class="muted">›</span></div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tabbar" id="etab">
+          <button class="on" data-t="e-home" onclick="etab('e-home',this)"><span class="ti">⌂</span>Home</button>
+          <button data-t="e-earnings" onclick="etab('e-earnings',this)"><span class="ti">💰</span>Earnings</button>
+          <button data-t="e-rewards" onclick="etab('e-rewards',this)"><span class="ti">🎯</span>Rewards</button>
+          <button data-t="e-profile" onclick="etab('e-profile',this)"><span class="ti">👤</span>Profile</button>
+        </div>
+      </div>
+    </div>
+    <p class="frame-caption">Engineer app · iOS & Android</p>
+  </div>
+</section>
+
+<!-- ===================== ADMIN PANEL ===================== -->
+<section id="s-admin" class="surface">
+  <div class="helper">▸ <span><b>Clickable:</b> sidebar items switch views · "Assign" picks the best-scored engineer · approve/reject engineers · toggle coupons. This is where everything is controlled.</span></div>
+  <div class="browser">
+    <div class="bar"><div class="dots"><i></i><i></i><i></i></div><div class="url">https://admin.servora.io/dashboard</div></div>
+    <div class="view">
+      <div class="admin">
+        <aside class="sidebar">
+          <div class="brand"><div class="lg">S</div> Servora</div>
+          <div class="nav-i on" data-group="a-nav" id="an-dash" onclick="ago('a-dash',this)"><span class="ni">▦</span> Dashboard</div>
+          <div class="nav-i" data-group="a-nav" id="an-dispatch" onclick="ago('a-dispatch',this)"><span class="ni">📡</span> Live dispatch</div>
+          <div class="nav-i" data-group="a-nav" id="an-jobs" onclick="ago('a-jobs',this)"><span class="ni">📋</span> Jobs</div>
+          <div class="nav-sep">Catalog & people</div>
+          <div class="nav-i" data-group="a-nav" id="an-services" onclick="ago('a-services',this)"><span class="ni">🧩</span> Services</div>
+          <div class="nav-i" data-group="a-nav" id="an-engineers" onclick="ago('a-engineers',this)"><span class="ni">🔧</span> Engineers</div>
+          <div class="nav-i" data-group="a-nav" id="an-customers" onclick="ago('a-customers',this)"><span class="ni">🏢</span> Customers</div>
+          <div class="nav-sep">Money & growth</div>
+          <div class="nav-i" data-group="a-nav" id="an-payments" onclick="ago('a-payments',this)"><span class="ni">💳</span> Payments</div>
+          <div class="nav-i" data-group="a-nav" id="an-coupons" onclick="ago('a-coupons',this)"><span class="ni">🎟</span> Offers & coupons</div>
+          <div class="nav-i" data-group="a-nav" id="an-incentives" onclick="ago('a-incentives',this)"><span class="ni">🎯</span> Engineer incentives</div>
+          <div class="nav-i" data-group="a-nav" id="an-disputes" onclick="ago('a-disputes',this)"><span class="ni">⚠️</span> Disputes</div>
+          <div class="nav-sep">System</div>
+          <div class="nav-i" data-group="a-nav" id="an-integrations" onclick="ago('a-integrations',this)"><span class="ni">🔌</span> Integrations</div>
+        </aside>
+
+        <div class="admin-main">
+
+          <!-- DASHBOARD -->
+          <div class="screen on" data-group="a" id="a-dash">
+            <div class="admin-top"><h3>Dashboard</h3><div class="search">🔍 Search jobs, engineers, customers…</div><div class="avatar btn-sm" style="width:36px;height:36px;background:var(--primary)">AD</div></div>
+            <div class="admin-content">
+              <div class="kpis">
+                <div class="kpi"><div class="kl"><span class="ki" style="background:var(--success-soft);color:var(--success)">₹</span> Revenue (mo)</div><div class="kv">₹8.4L</div><div class="kd up">▲ 18% vs last mo</div></div>
+                <div class="kpi"><div class="kl"><span class="ki" style="background:var(--primary-soft);color:var(--primary)">📋</span> Active jobs</div><div class="kv">37</div><div class="kd up">▲ 6 today</div></div>
+                <div class="kpi"><div class="kl"><span class="ki" style="background:var(--signal-soft);color:#B45309">🔧</span> Engineers online</div><div class="kv">24</div><div class="kd">of 58 total</div></div>
+                <div class="kpi"><div class="kl"><span class="ki" style="background:#f3e8ff;color:#7e22ce">💰</span> Pending payouts</div><div class="kv">₹1.2L</div><div class="kd down">12 to clear</div></div>
+              </div>
+              <div class="cols">
+                <div class="panel">
+                  <div class="panel-h"><h4>Recent jobs</h4><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer" onclick="ago('a-jobs',document.getElementById('an-jobs'))">View all →</a></div>
+                  <table class="table">
+                    <tr><th>Job</th><th>Customer</th><th>Engineer</th><th>Status</th><th>Amount</th></tr>
+                    <tr><td class="mono">#SVR-2041</td><td>Acme Corp</td><td>Rohit S.</td><td><span class="badge b-active">En route</span></td><td>₹5,809</td></tr>
+                    <tr><td class="mono">#SVR-2040</td><td>Nova Labs</td><td>Priya M.</td><td><span class="badge b-active">In progress</span></td><td>₹9,999</td></tr>
+                    <tr><td class="mono">#SVR-2039</td><td>BluePeak</td><td>Imran K.</td><td><span class="badge b-done">Completed</span></td><td>₹1,200</td></tr>
+                    <tr><td class="mono">#SVR-2044</td><td>Acme Corp</td><td>—</td><td><span class="badge b-pending">Quote</span></td><td>TBD</td></tr>
+                  </table>
+                </div>
+                <div class="panel">
+                  <div class="panel-h"><h4>Revenue · last 7 days</h4></div>
+                  <div style="padding:16px 18px">
+                    <div class="mini-chart">
+                      <div class="bar" style="height:55%"></div><div class="bar" style="height:72%"></div><div class="bar alt" style="height:48%"></div><div class="bar" style="height:88%"></div><div class="bar" style="height:66%"></div><div class="bar alt" style="height:95%"></div><div class="bar" style="height:78%"></div>
+                    </div>
+                    <div class="row between tiny muted" style="margin-top:6px"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+                    <div class="divider"></div>
+                    <div class="row between sm"><span class="muted">Commission earned (20%)</span><b>₹1.68L</b></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LIVE DISPATCH -->
+          <div class="screen" data-group="a" id="a-dispatch">
+            <div class="admin-top"><h3>Live dispatch</h3><span class="chip teal">24 engineers online</span><div class="search" style="width:auto;margin-left:auto">Auto-assign: <b style="color:var(--success)">ON</b></div></div>
+            <div class="admin-content">
+              <div class="cols">
+                <div>
+                  <div class="panel" style="margin-bottom:18px">
+                    <div class="panel-h"><h4>Map · job #SVR-2044 needs an engineer</h4><span class="badge b-pending">UNASSIGNED</span></div>
+                    <div style="padding:14px">
+                      <div class="map tall">
+                        <div class="road r1"></div><div class="road r2"></div><div class="road r3"></div>
+                        <div class="ping center"></div>
+                        <div class="mk" style="top:28%;left:30%"><div class="pin" style="background:var(--accent)">R</div><div class="lab">2.1 km</div></div>
+                        <div class="mk" style="top:22%;left:68%"><div class="pin" style="background:var(--primary)">P</div><div class="lab">3.4 km</div></div>
+                        <div class="mk" style="top:72%;left:60%"><div class="pin" style="background:var(--primary)">I</div><div class="lab">4.0 km</div></div>
+                        <div class="eta-pill">📍 Acme Corp, Sector 62</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel">
+                    <div class="panel-h"><h4>Unassigned queue</h4></div>
+                    <div class="dispatch-job"><div class="row between"><div><b class="sm">Custom: floor link</b><div class="muted tiny mono">#SVR-2044 · Acme Corp · Network</div></div><span class="badge b-pending">2 min ago</span></div></div>
+                    <div class="dispatch-job"><div class="row between"><div><b class="sm">Helpdesk ticket</b><div class="muted tiny mono">#SVR-2045 · Nova Labs · Remote</div></div><span class="badge b-new">scheduled</span></div></div>
+                  </div>
+                </div>
+                <div class="panel" style="align-self:start">
+                  <div class="panel-h"><h4>Best matches</h4><span class="chip ghost">skill + distance + rating</span></div>
+                  <div style="padding:14px">
+                    <div class="eng-opt best"><div class="avatar" style="background:var(--accent)">R</div><div><b class="sm">Rohit Sharma</b><div class="muted tiny">CCNA · ★4.9 · 2.1 km · free</div></div><span class="score">98</span></div>
+                    <div class="eng-opt"><div class="avatar" style="background:var(--primary)">P</div><div><b class="sm">Priya Menon</b><div class="muted tiny">Network · ★4.7 · 3.4 km · 1 job</div></div><span class="score">86</span></div>
+                    <div class="eng-opt"><div class="avatar" style="background:var(--primary-2)">I</div><div><b class="sm">Imran Khan</b><div class="muted tiny">Network · ★4.8 · 4.0 km · free</div></div><span class="score">81</span></div>
+                    <button class="btn btn-primary btn-block" style="margin-top:8px" onclick="assignEng()">⚡ Auto-assign best (Rohit)</button>
+                    <button class="btn btn-ghost btn-block" style="margin-top:8px">Assign manually</button>
+                    <p id="assignMsg" class="tiny" style="text-align:center;color:var(--success);font-weight:600;margin-top:10px;display:none">✓ Assigned to Rohit · offer sent</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- JOBS -->
+          <div class="screen" data-group="a" id="a-jobs">
+            <div class="admin-top"><h3>Jobs</h3><div class="search" style="margin-left:auto">🔍 Filter by status, customer…</div></div>
+            <div class="admin-content">
+              <div class="row" style="gap:8px;margin-bottom:16px"><span class="chip">All · 142</span><span class="chip ghost">Active · 37</span><span class="chip ghost">Quote pending · 9</span><span class="chip ghost">Completed · 96</span></div>
+              <div class="panel">
+                <table class="table">
+                  <tr><th>Job ID</th><th>Service</th><th>Customer</th><th>Engineer</th><th>Created</th><th>Status</th><th>Amount</th></tr>
+                  <tr><td class="mono">#SVR-2041</td><td>Network Setup</td><td>Acme Corp</td><td>Rohit S.</td><td class="muted">9:02 AM</td><td><span class="badge b-active">En route</span></td><td>₹5,809</td></tr>
+                  <tr><td class="mono">#SVR-2040</td><td>Security Audit</td><td>Nova Labs</td><td>Priya M.</td><td class="muted">8:30 AM</td><td><span class="badge b-active">In progress</span></td><td>₹9,999</td></tr>
+                  <tr><td class="mono">#SVR-2044</td><td>Custom: floor link</td><td>Acme Corp</td><td>—</td><td class="muted">9:20 AM</td><td><span class="badge b-pending">Quote</span></td><td>TBD</td></tr>
+                  <tr><td class="mono">#SVR-2039</td><td>Wi-Fi Audit</td><td>BluePeak</td><td>Imran K.</td><td class="muted">Yesterday</td><td><span class="badge b-done">Completed</span></td><td>₹1,200</td></tr>
+                  <tr><td class="mono">#SVR-2032</td><td>Cloud Migration</td><td>Acme Corp</td><td>—</td><td class="muted">Mon</td><td><span class="badge b-new">Scheduled</span></td><td>₹12,999</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- SERVICES -->
+          <div class="screen" data-group="a" id="a-services">
+            <div class="admin-top"><h3>Services catalog</h3><button class="btn btn-primary btn-sm" style="margin-left:auto">＋ Add service</button></div>
+            <div class="admin-content">
+              <div class="panel">
+                <table class="table">
+                  <tr><th>Service</th><th>Category</th><th>Base price</th><th>Avg time</th><th>Live</th><th></th></tr>
+                  <tr><td><b>Network Setup</b></td><td>Network</td><td>₹4,999</td><td>3–5 hrs</td><td><span class="toggle"></span></td><td><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer">Edit</a></td></tr>
+                  <tr><td><b>System Administration</b></td><td>Sys Admin</td><td>₹6,499</td><td>4 hrs</td><td><span class="toggle"></span></td><td><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer">Edit</a></td></tr>
+                  <tr><td><b>Cloud Migration</b></td><td>Cloud</td><td>₹12,999</td><td>2–3 days</td><td><span class="toggle"></span></td><td><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer">Edit</a></td></tr>
+                  <tr><td><b>Cybersecurity Audit</b></td><td>Security</td><td>₹9,999</td><td>1 day</td><td><span class="toggle"></span></td><td><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer">Edit</a></td></tr>
+                  <tr><td><b>Managed Helpdesk</b></td><td>Helpdesk</td><td>₹14,999/mo</td><td>Retainer</td><td><span class="toggle off"></span></td><td><a class="sm" style="color:var(--primary);font-weight:600;cursor:pointer">Edit</a></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ENGINEERS -->
+          <div class="screen" data-group="a" id="a-engineers">
+            <div class="admin-top"><h3>Engineers</h3><span class="chip amber">3 pending KYC</span><div class="search" style="margin-left:auto;width:auto">🔍 Search</div></div>
+            <div class="admin-content">
+              <div class="panel" style="margin-bottom:18px">
+                <div class="panel-h"><h4>Pending approval</h4></div>
+                <div class="dispatch-job"><div class="row"><div class="avatar" style="background:var(--signal)">V</div><div style="flex:1"><b class="sm">Vikram Rao</b><div class="muted tiny">AWS, Azure · Aadhaar + certs uploaded</div></div><button class="btn btn-out btn-sm" onclick="this.outerHTML='<span class=&quot;chip teal&quot;>✓ Approved</span>'">View & approve</button><button class="btn btn-ghost btn-sm" style="margin-left:8px;color:var(--danger)">Reject</button></div></div>
+                <div class="dispatch-job"><div class="row"><div class="avatar" style="background:var(--primary)">S</div><div style="flex:1"><b class="sm">Sneha Patil</b><div class="muted tiny">Network, Security · docs pending review</div></div><button class="btn btn-out btn-sm">View & approve</button><button class="btn btn-ghost btn-sm" style="margin-left:8px;color:var(--danger)">Reject</button></div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-h"><h4>Active engineers</h4></div>
+                <table class="table">
+                  <tr><th>Engineer</th><th>Skills</th><th>Rating</th><th>Jobs</th><th>Status</th></tr>
+                  <tr><td><b>Rohit Sharma</b></td><td>CCNA, AWS</td><td>★ 4.9</td><td>312</td><td><span class="badge b-active">Online</span></td></tr>
+                  <tr><td><b>Priya Menon</b></td><td>Network</td><td>★ 4.7</td><td>188</td><td><span class="badge b-active">On job</span></td></tr>
+                  <tr><td><b>Imran Khan</b></td><td>Network, Sec</td><td>★ 4.8</td><td>241</td><td><span class="badge b-active">Online</span></td></tr>
+                  <tr><td><b>Anita Das</b></td><td>Cloud</td><td>★ 5.0</td><td>97</td><td><span class="badge" style="background:#f1f5f9;color:var(--muted)">Offline</span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOMERS -->
+          <div class="screen" data-group="a" id="a-customers">
+            <div class="admin-top"><h3>Customers</h3><div class="search" style="margin-left:auto">🔍 Search companies</div></div>
+            <div class="admin-content">
+              <div class="panel">
+                <table class="table">
+                  <tr><th>Company</th><th>Type</th><th>Jobs</th><th>Lifetime value</th><th>Eng. rating</th><th>Status</th></tr>
+                  <tr><td><b>Acme Corp</b></td><td>Business</td><td>14</td><td>₹2.1L</td><td class="stars">★ 4.8</td><td><span class="badge b-done">Active</span></td></tr>
+                  <tr><td><b>Nova Labs</b></td><td>Business</td><td>8</td><td>₹1.4L</td><td class="stars">★ 4.6</td><td><span class="badge b-done">Active</span></td></tr>
+                  <tr><td><b>BluePeak</b></td><td>Startup</td><td>3</td><td>₹38K</td><td class="stars">★ 5.0</td><td><span class="badge b-new">New</span></td></tr>
+                  <tr><td><b>Grid Systems</b></td><td>Enterprise</td><td>21</td><td>₹4.7L</td><td class="stars">★ 4.9</td><td><span class="badge b-active">Retainer</span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- PAYMENTS -->
+          <div class="screen" data-group="a" id="a-payments">
+            <div class="admin-top"><h3>Payments & payouts</h3></div>
+            <div class="admin-content">
+              <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+                <div class="kpi"><div class="kl">To collect on completion</div><div class="kv">₹3.1L</div><div class="kd muted">9 active jobs</div></div>
+                <div class="kpi"><div class="kl">Commission (mo)</div><div class="kv">₹1.68L</div><div class="kd up">20% avg take rate</div></div>
+                <div class="kpi"><div class="kl">Pending engineer payouts</div><div class="kv">₹1.2L</div><div class="kd down">12 to clear</div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-h"><h4>Transactions</h4><span class="chip ghost">payment captured at completion</span></div>
+                <table class="table">
+                  <tr><th>Job</th><th>Customer paid</th><th>Engineer payout</th><th>Commission</th><th>State</th></tr>
+                  <tr><td class="mono">#SVR-2039</td><td>₹1,200</td><td>₹960</td><td style="color:var(--success)">₹240</td><td><span class="badge b-done">Paid · released</span></td></tr>
+                  <tr><td class="mono">#SVR-2041</td><td class="muted">— not yet</td><td class="muted">—</td><td class="muted">—</td><td><span class="badge b-pending">Charges on completion</span></td></tr>
+                  <tr><td class="mono">#SVR-2040</td><td class="muted">— not yet</td><td class="muted">—</td><td class="muted">—</td><td><span class="badge b-pending">Charges on completion</span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- COUPONS -->
+          <div class="screen" data-group="a" id="a-coupons">
+            <div class="admin-top"><h3>Offers & coupons</h3><button class="btn btn-primary btn-sm" style="margin-left:auto">＋ Create coupon</button></div>
+            <div class="admin-content">
+              <div class="panel">
+                <table class="table">
+                  <tr><th>Code</th><th>Discount</th><th>Applies to</th><th>Used</th><th>Expires</th><th>Live</th></tr>
+                  <tr><td class="mono"><b>SAVE20</b></td><td>20% (max ₹500)</td><td>First booking</td><td>184 / 500</td><td>5 days</td><td><span class="toggle"></span></td></tr>
+                  <tr><td class="mono"><b>CLOUD15</b></td><td>15%</td><td>Cloud services</td><td>42</td><td>14 days</td><td><span class="toggle"></span></td></tr>
+                  <tr><td class="mono"><b>RETAINER10</b></td><td>10%</td><td>Annual helpdesk</td><td>11</td><td>30 days</td><td><span class="toggle"></span></td></tr>
+                  <tr><td class="mono"><b>WELCOME50</b></td><td>₹50 wallet</td><td>Referral</td><td>308</td><td>—</td><td><span class="toggle off"></span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ENGINEER INCENTIVES -->
+          <div class="screen" data-group="a" id="a-incentives">
+            <div class="admin-top"><h3>Engineer incentives</h3><span class="chip teal">4 live programs</span><button class="btn btn-primary btn-sm" style="margin-left:auto">＋ Create incentive</button></div>
+            <div class="admin-content">
+              <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
+                <div class="kpi"><div class="kl"><span class="ki" style="background:#f3e8ff;color:#7e22ce">🎁</span> Bonuses paid (mo)</div><div class="kv">₹84K</div><div class="kd muted">to 41 engineers</div></div>
+                <div class="kpi"><div class="kl"><span class="ki" style="background:var(--success-soft);color:var(--success)">📈</span> Jobs / engineer</div><div class="kv">+23%</div><div class="kd up">▲ since incentives</div></div>
+                <div class="kpi"><div class="kl"><span class="ki" style="background:var(--primary-soft);color:var(--primary)">🎯</span> Active quests</div><div class="kv">132</div><div class="kd muted">engineers enrolled</div></div>
+              </div>
+              <div class="panel" style="margin-bottom:18px">
+                <div class="panel-h"><h4>Incentive programs</h4><span class="chip ghost">toggle to enable / pause</span></div>
+                <table class="table">
+                  <tr><th>Program</th><th>Type</th><th>Target</th><th>Reward</th><th>Enrolled</th><th>Live</th></tr>
+                  <tr><td><b>Weekly target</b></td><td>Milestone</td><td>12 jobs / week</td><td>₹800</td><td>132</td><td><span class="toggle"></span></td></tr>
+                  <tr><td><b>Weekend Warrior</b></td><td>Quest</td><td>5 jobs Sat–Sun</td><td>₹600</td><td>88</td><td><span class="toggle"></span></td></tr>
+                  <tr><td><b>Peak hours</b></td><td>Surge</td><td>Jobs 6–9 PM</td><td>+₹150 / job</td><td>All</td><td><span class="toggle"></span></td></tr>
+                  <tr><td><b>5-star streak</b></td><td>Quality</td><td>10 jobs @ 5★</td><td>₹500</td><td>64</td><td><span class="toggle"></span></td></tr>
+                  <tr><td><b>Refer an engineer</b></td><td>Referral</td><td>1 verified join</td><td>₹1,000</td><td>All</td><td><span class="toggle off"></span></td></tr>
+                </table>
+              </div>
+              <div class="cols">
+                <div class="panel">
+                  <div class="panel-h"><h4>Engineer tiers</h4><span class="chip ghost">auto-assigned by performance</span></div>
+                  <table class="table">
+                    <tr><th>Tier</th><th>Requirement</th><th>Commission*</th><th>Perks</th></tr>
+                    <tr><td><b>Bronze</b></td><td>0–50 jobs</td><td>25%</td><td>Standard</td></tr>
+                    <tr><td><b>Silver</b></td><td>50–150 jobs</td><td>22%</td><td>Faster payout</td></tr>
+                    <tr><td><b>Gold</b></td><td>150+ · ★4.7+</td><td>18%</td><td>Priority dispatch</td></tr>
+                    <tr><td><b>Platinum</b></td><td>300+ · ★4.9+</td><td>15%</td><td>Top priority + perks</td></tr>
+                  </table>
+                  <div style="padding:10px 18px"><p class="tiny muted">*Lower commission = engineer keeps more. Better performers earn a bigger share — the core retention lever.</p></div>
+                </div>
+                <div class="panel">
+                  <div class="panel-h"><h4>Recent bonus payouts</h4></div>
+                  <table class="table">
+                    <tr><th>Engineer</th><th>Program</th><th>Bonus</th></tr>
+                    <tr><td>Rohit S.</td><td>Weekly target</td><td style="color:var(--success)">+₹800</td></tr>
+                    <tr><td>Priya M.</td><td>Peak hours ×3</td><td style="color:var(--success)">+₹450</td></tr>
+                    <tr><td>Imran K.</td><td>Weekend Warrior</td><td style="color:var(--success)">+₹600</td></tr>
+                    <tr><td>Anita D.</td><td>5-star streak</td><td style="color:var(--success)">+₹500</td></tr>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DISPUTES -->
+          <div class="screen" data-group="a" id="a-disputes">
+            <div class="admin-top"><h3>Disputes & support</h3><span class="chip amber">2 open</span></div>
+            <div class="admin-content">
+              <div class="panel">
+                <div class="dispatch-job"><div class="row"><div class="li-ic" style="background:var(--danger-soft);color:var(--danger)">⚠️</div><div style="flex:1"><b class="sm">Photo proof disputed · #SVR-2031</b><div class="muted tiny">Nova Labs says Wi-Fi not configured · payment on hold</div></div><span class="badge b-warn">High</span><button class="btn btn-out btn-sm" style="margin-left:12px">Review</button></div></div>
+                <div class="dispatch-job"><div class="row"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">🕑</div><div style="flex:1"><b class="sm">Late arrival complaint · #SVR-2027</b><div class="muted tiny">Engineer arrived 40 min late · refund requested</div></div><span class="badge b-pending">Medium</span><button class="btn btn-out btn-sm" style="margin-left:12px">Review</button></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INTEGRATIONS -->
+          <div class="screen" data-group="a" id="a-integrations">
+            <div class="admin-top"><h3>Integrations</h3><span class="chip teal">9 services</span><div class="search" style="margin-left:auto;width:auto">🔒 Keys are encrypted · never exposed to the apps</div></div>
+            <div class="admin-content">
+              <div class="card" style="background:var(--primary-soft);border-color:transparent;margin-bottom:18px">
+                <div class="row" style="gap:10px"><span style="font-size:18px">🔌</span><div class="sm"><b>Manage every external API from here.</b> <span class="muted">Add or update keys, test the connection, and enable/disable a service. Changes apply instantly — no redeploy needed.</span></div></div>
+              </div>
+              <div class="int-grid">
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--primary-soft);color:var(--primary)">🪪</div><div><b class="sm">Surepass</b><div class="muted tiny">GST + identity (KYC) verification</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>API token</label><input class="input" type="password" value="••••••••••••3f2a"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--success-soft);color:var(--success)">💳</div><div><b class="sm">Razorpay</b><div class="muted tiny">Customer payments</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>Key ID &amp; secret</label><input class="input" type="password" value="••••••••rzp_live_8KQ"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--accent-soft);color:var(--accent)">💸</div><div><b class="sm">RazorpayX</b><div class="muted tiny">Engineer payouts</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>Account &amp; key</label><input class="input" type="password" value="••••••••payout_X12"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">🗺️</div><div><b class="sm">Google Maps</b><div class="muted tiny">Maps, geo &amp; routing</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>API key</label><input class="input" type="password" value="••••••••AIzaSyD4"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--primary-soft);color:var(--primary)">🔔</div><div><b class="sm">Firebase (FCM)</b><div class="muted tiny">Push notifications</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>Service account JSON</label><input class="input" type="password" value="••••••••servora-fcm"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--accent-soft);color:var(--accent)">✉️</div><div><b class="sm">MSG91</b><div class="muted tiny">SMS &amp; OTP delivery</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>Auth key</label><input class="input" type="password" value="••••••••401hX92msg"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:#f1f5f9;color:var(--muted)">🗄️</div><div><b class="sm">AWS S3</b><div class="muted tiny">File &amp; document storage</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>Access key / bucket</label><input class="input" type="password" value="••••••••servora-prod"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:var(--signal-soft);color:#B45309">📧</div><div><b class="sm">Email (AWS SES)</b><div class="muted tiny">Invoices &amp; account emails</div></div></div><span class="badge b-done">Connected</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>SMTP / API key</label><input class="input" type="password" value="••••••••ses_AKIA77"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle"></span></div>
+                </div>
+
+                <div class="card">
+                  <div class="row between" style="margin-bottom:12px"><div class="row" style="gap:10px"><div class="li-ic" style="background:#fde8ef;color:#be123c">🐞</div><div><b class="sm">Sentry</b><div class="muted tiny">Error &amp; crash monitoring</div></div></div><span class="badge b-warn">Not set</span></div>
+                  <div class="field" style="margin-bottom:10px"><label>DSN</label><input class="input" placeholder="Paste your Sentry DSN…"></div>
+                  <div class="row between"><div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm">Test</button><button class="btn btn-primary btn-sm">Save</button></div><span class="toggle off"></span></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="frame-caption">Admin panel · web · controls both apps end-to-end</p>
+</section>
+
+</div>
+
+<script>
+function go(name){
+  document.querySelectorAll('.surface').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+name).classList.add('on');
+  document.querySelectorAll('.toolbar .tabs button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('t-'+name).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function group(g,id){
+  document.querySelectorAll('[data-group="'+g+'"]').forEach(e=>e.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+}
+function wgo(id){group('web',id);document.getElementById('webview').scrollTo(0,0);}
+function cgo(id){group('c',id);document.getElementById('cbody').scrollTo(0,0);syncTab('ctab',id);}
+function ego(id){group('e',id);document.getElementById('ebody').scrollTo(0,0);syncTab('etab',id);}
+function ago(id,el){group('a',id);document.querySelectorAll('[data-group="a-nav"]').forEach(e=>e.classList.remove('on'));if(el)el.classList.add('on');}
+
+function syncTab(tabId,screenId){
+  document.querySelectorAll('#'+tabId+' button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.t===screenId);
+  });
+}
+function ctab(id,el){cgo(id);document.querySelectorAll('#ctab button').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function etab(id,el){ego(id);document.querySelectorAll('#etab button').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+
+function applyCoupon(){
+  document.getElementById('discRow').hidden=false;
+  document.getElementById('payTotal').textContent='₹5,309';
+  event.target.textContent='Applied ✓';
+  event.target.classList.add('btn-ghost');event.target.classList.remove('btn-amber');
+}
+function selPay(el){
+  el.parentElement.querySelectorAll('.pay').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function toggleOnline(){document.getElementById('onTog').classList.toggle('off');}
+function assignEng(){document.getElementById('assignMsg').style.display='block';}
+function toggleTheme(){
+  const on=document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = on ? '🌙 Dark' : '☀️ Light';
+}
+function star(el,n){const w=el.parentElement;w.dataset.rated=n;[...w.children].forEach((s,i)=>s.classList.toggle('lit',i<n));}
+function pick(el){el.classList.toggle('on');}
+function payReveal(){document.getElementById('payBlock').style.display='none';document.getElementById('otpBlock').style.display='block';document.getElementById('cbody').scrollTo({top:9999,behavior:'smooth'});}
+</script>
+</body>
+</html>
