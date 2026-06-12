@@ -11,9 +11,20 @@ yarn-error.log*
 .env.local
 .env.*.local
 
+# Secrets — local KMS keyfile (NEVER commit)
+.keys/
+**/.keys/
+*.kms.json
+
 # Build output
 dist/
 build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Monorepo / tooling
+coverage/
 
 # Editor
 .vscode/

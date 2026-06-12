@@ -1,0 +1,40 @@
+# Local infrastructure for Servora development (Tech-Stack §9.1, §11 MVP).
+# Postgres ships with PostGIS; Redis backs cache, geo matching and BullMQ.
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: servora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: servora
+      POSTGRES_PASSWORD: servora
+      POSTGRES_DB: servora
+    ports:
+      # Host 5433 → container 5432 (host 5432 is often taken by a local Postgres).
+      - '5433:5432'
+    volumes:
+      - servora-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U servora -d servora']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: servora-redis
+    restart: unless-stopped
+    ports:
+      # Host 6380 → container 6379 (host 6379 is often taken by a local Redis).
+      - '6380:6379'
+    volumes:
+      - servora-redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  servora-pgdata:
+  servora-redisdata:

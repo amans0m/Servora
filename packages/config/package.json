@@ -1,0 +1,10 @@
+{
+  "name": "@servora/config",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared eslint / tsconfig / prettier presets",
+  "files": ["tsconfig.base.json", "eslint-preset.js"],
+  "scripts": {
+    "lint": "echo \"(config) nothing to lint\""
+  }
+}

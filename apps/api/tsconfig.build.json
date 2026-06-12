@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  // No source maps in production artifacts (§A6 — don't expose internals).
+  "compilerOptions": { "sourceMap": false },
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}

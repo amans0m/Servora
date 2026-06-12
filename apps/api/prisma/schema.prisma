@@ -1,0 +1,703 @@
+// Servora — data model (Tech-Stack §8). PostgreSQL 16 + PostGIS via Prisma.
+//
+// Every high-level entity from §8 is modelled here so later phases add logic,
+// not migrations. Geo: engineer live location is matched in Redis GEO at
+// dispatch time (§7); we also persist lat/lng + a PostGIS geography column so
+// the DB can answer spatial queries (admin dispatch map, analytics).
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────────────────────────────────
+
+enum Role {
+  customer
+  engineer
+  admin
+  super_admin // §A4: required for Integrations (API keys) + payouts
+}
+
+enum UserStatus {
+  active
+  suspended
+  deleted
+}
+
+enum GstStatus {
+  unverified
+  verified
+  failed
+}
+
+enum EngineerApprovalStatus {
+  pending_kyc // registered, KYC not all-passed yet
+  pending_approval // all KYC checks passed, awaiting admin
+  approved // admin approved — can go online
+  rejected
+}
+
+enum EngineerAvailability {
+  offline
+  online
+  busy
+}
+
+enum EngineerTier {
+  bronze
+  silver
+  gold
+  platinum
+}
+
+enum KycCheckType {
+  gst // customer
+  aadhaar // engineer
+  pan // engineer
+  bank // engineer
+}
+
+enum KycStatus {
+  pending
+  passed
+  failed
+}
+
+enum ServiceCategory {
+  network
+  cloud
+  security
+  sysadmin
+  helpdesk
+  custom
+}
+
+enum BookingType {
+  standard
+  custom_quote
+}
+
+enum BookingStatus {
+  pending_quote // custom request awaiting admin price (QUOTE)
+  confirmed // booked, no charge (NEW/SOON)
+  dispatching // searching for an engineer
+  assigned // engineer accepted (EN ROUTE)
+  en_route
+  in_progress // start OTP verified (IN PROGRESS)
+  awaiting_payment // engineer marked done; customer to pay
+  completed // completion OTP verified, payout released (DONE/RELEASED)
+  cancelled
+}
+
+enum JobEventType {
+  created
+  quoted
+  confirmed
+  dispatching
+  assigned
+  en_route
+  arrived
+  started
+  proof_uploaded
+  completion_requested
+  payment_captured
+  completed
+  cancelled
+  rescheduled
+  engineer_changed
+  disputed
+}
+
+enum AssignmentStatus {
+  offered
+  accepted
+  declined
+  timed_out
+  cancelled
+}
+
+enum OtpType {
+  start
+  completion
+}
+
+enum PaymentStatus {
+  created // Razorpay order created
+  authorized // method verified at booking, not captured
+  captured // captured at completion
+  failed
+  refunded
+}
+
+enum PayoutStatus {
+  pending
+  queued
+  processing
+  paid
+  failed
+}
+
+enum RatingType {
+  engineer // customer -> engineer (public)
+  platform // customer -> Servora (internal)
+  customer // engineer -> customer (admin-only)
+}
+
+enum RatingVisibility {
+  public
+  internal
+  admin_only
+}
+
+enum DiscountType {
+  percent
+  flat
+}
+
+enum IncentiveType {
+  milestone
+  quest
+  surge
+  quality
+  referral
+}
+
+enum DisputeSeverity {
+  low
+  medium
+  high
+}
+
+enum DisputeStatus {
+  open
+  in_review
+  resolved
+  rejected
+}
+
+enum NotificationChannel {
+  push
+  sms
+  email
+}
+
+enum NotificationStatus {
+  queued
+  sent
+  failed
+}
+
+enum IntegrationProvider {
+  surepass
+  razorpay
+  razorpayx
+  google_maps
+  fcm
+  msg91
+  s3
+  email
+  sentry
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Identity & accounts
+// ─────────────────────────────────────────────────────────────────────────
+
+model User {
+  id           String     @id @default(cuid())
+  role         Role
+  // PII encrypted at rest (AES-256-GCM, §A1). Equality lookups use the blind
+  // index columns (deterministic HMAC) since ciphertext isn't searchable.
+  email        String? // ciphertext
+  emailIndex   String?    @unique
+  phone        String? // ciphertext
+  phoneIndex   String?    @unique
+  passwordHash String?
+  status       UserStatus @default(active)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  customerProfile CustomerProfile?
+  engineerProfile EngineerProfile?
+  refreshTokens   RefreshToken[]
+  notifications   Notification[]
+  auditLogs       AuditLog[]       @relation("AuditActor")
+  ratingsGiven    Rating[]         @relation("RatingAuthor")
+  disputesRaised  Dispute[]        @relation("DisputeRaisedBy")
+
+  @@index([role])
+}
+
+// One row per issued refresh token (§A2). Tokens are one-time-use and rotated;
+// a `familyId` ties a login session's chain together so that presenting an
+// already-used (revoked) token — reuse/theft — can revoke the whole family.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jti          String    @unique // token id (also embedded in the JWT)
+  familyId     String // session family — rotated tokens share this
+  tokenHash    String // argon2 hash of the refresh token (never plaintext)
+  deviceId     String? // session bound to a device/fingerprint
+  deviceLabel  String?
+  replacedById String? // the token that rotated this one (audit trail)
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+model CustomerProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName       String
+  gstin             String? // ciphertext (§A1)
+  gstinIndex        String?   @unique // HMAC blind index
+  verifiedLegalName String? // from Surepass GSTIN verification
+  gstStatus         GstStatus @default(unverified)
+  gstVerifiedAt     DateTime?
+  walletBalance     Decimal   @default(0) @db.Decimal(12, 2)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  addresses Address[]
+  bookings  Booking[]
+
+  @@index([gstStatus])
+}
+
+model Address {
+  id           String          @id @default(cuid())
+  customerId   String
+  customer     CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label        String? // "HQ", "Branch office"
+  // Street lines + pincode are PII → encrypted at rest (§A1). City/state stay
+  // plaintext (coarse, needed for ops/filtering); lat/lng power geo dispatch.
+  line1        String // ciphertext
+  line2        String? // ciphertext
+  city         String
+  state        String
+  pincode      String // ciphertext
+  lat          Float
+  lng          Float
+  // PostGIS point for spatial queries; populated from lat/lng.
+  geom         Unsupported("geography(Point, 4326)")?
+  isDefault    Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+
+  bookings Booking[]
+
+  @@index([customerId])
+}
+
+model EngineerProfile {
+  id               String                 @id @default(cuid())
+  userId           String                 @unique
+  user             User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName         String
+  skills           String[] // skill tags drive dispatch matching
+  tier             EngineerTier           @default(bronze)
+  rating           Float                  @default(0)
+  ratingCount      Int                    @default(0)
+  jobsCompleted    Int                    @default(0)
+  availability     EngineerAvailability   @default(offline)
+  currentLoad      Int                    @default(0) // active jobs in hand (ranking input)
+  approvalStatus   EngineerApprovalStatus @default(pending_kyc)
+  approvedAt       DateTime?
+  approvedById     String?
+  // Last known live location (also pushed to Redis GEO while online).
+  lat              Float?
+  lng              Float?
+  geom             Unsupported("geography(Point, 4326)")?
+  locationUpdatedAt DateTime?
+  // Payout target — verified via Surepass penny-drop, never stored raw beyond masked ref in KycRecord.
+  bankAccountLast4 String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  kycRecords    KycRecord[]
+  assignments   Assignment[]
+  payouts       Payout[]
+  bookings      Booking[]
+  incentiveAwards IncentiveAward[]
+
+  @@index([availability])
+  @@index([approvalStatus])
+  @@index([tier])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// KYC (Surepass) — store status + masked refs only (Security §12, §5.2)
+// ─────────────────────────────────────────────────────────────────────────
+
+model KycRecord {
+  id         String           @id @default(cuid())
+  engineerId String?
+  engineer   EngineerProfile? @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  // GST checks belong to a customer; engineer checks to an engineer.
+  customerId String?
+  type       KycCheckType
+  status     KycStatus        @default(pending)
+  provider   String           @default("surepass")
+  maskedRef  String? // e.g. "XXXXXXXX1234" — never the full number
+  verifiedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([engineerId])
+  @@index([type, status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Catalog
+// ─────────────────────────────────────────────────────────────────────────
+
+model Service {
+  id               String          @id @default(cuid())
+  slug             String          @unique
+  name             String
+  category         ServiceCategory
+  description      String
+  basePrice        Decimal         @db.Decimal(12, 2)
+  estimatedMinutes Int             @default(60)
+  requiredSkills   String[] // matched against EngineerProfile.skills
+  rating           Float           @default(0)
+  active           Boolean         @default(true) // "live" toggle in admin
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  addons   Addon[]
+  bookings Booking[]
+
+  @@index([category, active])
+}
+
+model Addon {
+  id        String   @id @default(cuid())
+  serviceId String
+  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  name      String
+  price     Decimal  @db.Decimal(12, 2)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  bookingAddons BookingAddon[]
+
+  @@index([serviceId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Bookings (jobs) & lifecycle
+// ─────────────────────────────────────────────────────────────────────────
+
+model Booking {
+  id           String        @id @default(cuid())
+  customerId   String
+  customer     CustomerProfile @relation(fields: [customerId], references: [id])
+  serviceId    String?
+  service      Service?      @relation(fields: [serviceId], references: [id])
+  engineerId   String? // currently-assigned engineer
+  engineer     EngineerProfile? @relation(fields: [engineerId], references: [id])
+  addressId    String?
+  address      Address?      @relation(fields: [addressId], references: [id])
+  type         BookingType   @default(standard)
+  status       BookingStatus @default(confirmed)
+  customDescription String? // for custom_quote requests
+  scheduledAt  DateTime?
+  // Money — computed at booking; captured only at completion (§6).
+  subtotal     Decimal       @default(0) @db.Decimal(12, 2)
+  discount     Decimal       @default(0) @db.Decimal(12, 2)
+  tax          Decimal       @default(0) @db.Decimal(12, 2)
+  total        Decimal       @default(0) @db.Decimal(12, 2)
+  couponId     String?
+  coupon       Coupon?       @relation(fields: [couponId], references: [id])
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  addons      BookingAddon[]
+  events      JobEvent[]
+  assignments Assignment[]
+  otps        Otp[]
+  payment     Payment?
+  payout      Payout?
+  ratings     Rating[]
+  disputes    Dispute[]
+
+  @@index([customerId])
+  @@index([engineerId])
+  @@index([status])
+}
+
+model BookingAddon {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  addonId   String
+  addon     Addon   @relation(fields: [addonId], references: [id])
+  price     Decimal @db.Decimal(12, 2) // snapshot at booking time
+
+  @@unique([bookingId, addonId])
+}
+
+model JobEvent {
+  id        String       @id @default(cuid())
+  bookingId String
+  booking   Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type      JobEventType
+  metadata  Json?
+  createdAt DateTime     @default(now())
+
+  @@index([bookingId])
+}
+
+model Assignment {
+  id          String           @id @default(cuid())
+  bookingId   String
+  booking     Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  engineerId  String
+  engineer    EngineerProfile  @relation(fields: [engineerId], references: [id])
+  status      AssignmentStatus @default(offered)
+  distanceM   Float? // distance at offer time
+  score       Float? // ranking score (distance + rating + load)
+  offeredAt   DateTime         @default(now())
+  respondedAt DateTime?
+
+  @@index([bookingId])
+  @@index([engineerId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// OTPs — start + payment-gated completion (§6, §8.1)
+// ─────────────────────────────────────────────────────────────────────────
+
+model Otp {
+  id           String    @id @default(cuid())
+  bookingId    String
+  booking      Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type         OtpType
+  // AES-GCM encrypted code (Security §12 — not plaintext at rest). Unlike a
+  // login OTP it must be *revealed* to the customer, so it's reversibly
+  // encrypted rather than hashed; the engineer's entry is compared against it.
+  codeEnc      String
+  paymentGated Boolean   @default(false) // completion OTP: only revealed after capture
+  revealedAt   DateTime? // when the customer was shown the code
+  consumedAt   DateTime? // when the engineer entered it to advance the job
+  attempts     Int       @default(0)
+  expiresAt    DateTime
+  createdAt    DateTime  @default(now())
+
+  @@index([bookingId, type])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Money — payments (Razorpay) & payouts (RazorpayX)
+// ─────────────────────────────────────────────────────────────────────────
+
+model Payment {
+  id               String        @id @default(cuid())
+  bookingId        String        @unique
+  booking          Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  razorpayOrderId  String?
+  razorpayPaymentId String?
+  amount           Decimal       @db.Decimal(12, 2)
+  status           PaymentStatus @default(created)
+  method           String? // upi / card / netbanking — chosen at completion
+  authorizedAt     DateTime?
+  capturedAt       DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Payout {
+  id               String       @id @default(cuid())
+  bookingId        String       @unique
+  booking          Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  engineerId       String
+  engineer         EngineerProfile @relation(fields: [engineerId], references: [id])
+  grossAmount      Decimal      @db.Decimal(12, 2) // what the customer paid
+  commissionRate   Decimal      @db.Decimal(5, 4) // tier-based, e.g. 0.2500
+  commissionAmount Decimal      @db.Decimal(12, 2)
+  netAmount        Decimal      @db.Decimal(12, 2) // paid to engineer
+  razorpayXPayoutId String?
+  status           PayoutStatus @default(pending)
+  processedAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([engineerId])
+  @@index([status])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Ratings (two-way, §8.3)
+// ─────────────────────────────────────────────────────────────────────────
+
+model Rating {
+  id         String           @id @default(cuid())
+  bookingId  String
+  booking    Booking          @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId   String // user who gave the rating
+  author     User             @relation("RatingAuthor", fields: [authorId], references: [id])
+  type       RatingType
+  visibility RatingVisibility
+  stars      Int // 1..5
+  tags       String[] // quick feedback chips
+  review     String?
+  createdAt  DateTime         @default(now())
+
+  @@unique([bookingId, type])
+  @@index([type])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Growth — coupons, incentives, tiers
+// ─────────────────────────────────────────────────────────────────────────
+
+model Coupon {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  discountType DiscountType
+  value        Decimal      @db.Decimal(12, 2) // percent (0-100) or flat amount
+  scope        String? // e.g. category or "all"
+  minOrder     Decimal      @default(0) @db.Decimal(12, 2)
+  maxUses      Int? // null = unlimited
+  usedCount    Int          @default(0)
+  expiresAt    DateTime?
+  active       Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  bookings     Booking[]
+  redemptions  CouponRedemption[]
+
+  @@index([active])
+}
+
+model CouponRedemption {
+  id         String   @id @default(cuid())
+  couponId   String
+  coupon     Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  bookingId  String
+  customerId String
+  amount     Decimal  @db.Decimal(12, 2)
+  createdAt  DateTime @default(now())
+
+  @@index([couponId])
+}
+
+// Engineer tier definitions — commission decreases as tier increases (§6).
+model TierDefinition {
+  tier           EngineerTier @id
+  minJobs        Int          @default(0)
+  commissionRate Decimal      @db.Decimal(5, 4) // bronze 0.2500 -> platinum 0.1500
+  perks          String[]
+  priorityRank   Int          @default(0) // higher = priority dispatch
+}
+
+model Incentive {
+  id        String        @id @default(cuid())
+  name      String
+  type      IncentiveType
+  reward    Decimal       @db.Decimal(12, 2)
+  criteria  Json? // e.g. { jobs: 12, window: "week" }
+  active    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  awards IncentiveAward[]
+
+  @@index([active])
+}
+
+model IncentiveAward {
+  id          String          @id @default(cuid())
+  incentiveId String
+  incentive   Incentive       @relation(fields: [incentiveId], references: [id], onDelete: Cascade)
+  engineerId  String
+  engineer    EngineerProfile @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  amount      Decimal         @db.Decimal(12, 2)
+  awardedAt   DateTime        @default(now())
+
+  @@index([engineerId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Disputes & notifications
+// ─────────────────────────────────────────────────────────────────────────
+
+model Dispute {
+  id          String          @id @default(cuid())
+  bookingId   String
+  booking     Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  raisedById  String
+  raisedBy    User            @relation("DisputeRaisedBy", fields: [raisedById], references: [id])
+  category    String
+  severity    DisputeSeverity @default(medium)
+  status      DisputeStatus   @default(open)
+  description String
+  resolution  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([status])
+}
+
+model Notification {
+  id        String              @id @default(cuid())
+  userId    String
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel   NotificationChannel
+  template  String
+  payload   Json?
+  status    NotificationStatus  @default(queued)
+  sentAt    DateTime?
+  createdAt DateTime            @default(now())
+
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Admin — encrypted integration keys (§10) + audit log (§12)
+// ─────────────────────────────────────────────────────────────────────────
+
+// One row per third-party provider. `encryptedConfig` holds the secret(s)
+// encrypted at rest; the integrations-config service reads from here first
+// and falls back to env vars when a provider is unset (Tech-Stack §10).
+model Integration {
+  provider        IntegrationProvider @id
+  encryptedConfig String? // AES-GCM ciphertext of a JSON blob of keys
+  enabled         Boolean             @default(false)
+  status          String              @default("not_set") // not_set | connected | error
+  lastTestedAt    DateTime?
+  updatedById     String?
+  updatedAt       DateTime            @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id])
+  action     String // e.g. "engineer.approve", "payout.release"
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorId])
+}

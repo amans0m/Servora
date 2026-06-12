@@ -1,0 +1,34 @@
+{
+  "name": "servora",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servora — IT-services marketplace (monorepo root)",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "api": "pnpm --filter @servora/api",
+    "api:dev": "pnpm --filter @servora/api start:dev",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
+  },
+  "devDependencies": {
+    "turbo": "2.9.18",
+    "typescript": "5.9.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "multer@<2.1.1": ">=2.1.1"
+    },
+    "auditConfig": {
+      "ignoreGhsas": [
+        "GHSA-r5fr-rjxr-66jc"
+      ]
+    }
+  }
+}
