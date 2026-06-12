@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Servora",
+    "slug": "servora-customer",
+    "scheme": "servora",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.servora.customer"
+    },
+    "android": {
+      "package": "io.servora.customer"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-secure-store"]
+  }
+}

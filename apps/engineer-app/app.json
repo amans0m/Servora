@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Servora Partner",
+    "slug": "servora-engineer",
+    "scheme": "servora-engineer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": false,
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "io.servora.engineer"
+    },
+    "android": {
+      "package": "io.servora.engineer"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": ["expo-secure-store"]
+  }
+}
