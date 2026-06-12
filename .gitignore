@@ -29,3 +29,16 @@ coverage/
 # Editor
 .vscode/
 .idea/
+
+# Expo / RN
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+
+# Next.js
+apps/web/.next/
+next-env.d.ts
